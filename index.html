@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大判印刷 見積もり計算機</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    background: #f0f4f8;
+    color: #1a202c;
+    padding-bottom: 200px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.6rem; font-weight: 700; }
+  header p { font-size: 0.9rem; margin-top: 6px; opacity: 0.85; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+
+  .step {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  .step-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .step-num {
+    background: #1e40af;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .step-title { font-size: 1.05rem; font-weight: 700; color: #1e293b; }
+
+  /* カード共通 */
+  .cards {
+    display: grid;
+    gap: 12px;
+  }
+  .cards-3 { grid-template-columns: repeat(3, 1fr); }
+  .cards-5 { grid-template-columns: repeat(5, 1fr); }
+  .cards-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    background: #fafafa;
+    user-select: none;
+  }
+  .card:hover { border-color: #93c5fd; background: #eff6ff; }
+  .card.selected {
+    border-color: #1e40af;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(30,64,175,0.15);
+  }
+  .card svg { display: block; margin: 0 auto 10px; }
+  .card .card-name { font-size: 0.88rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .card .card-desc { font-size: 0.75rem; color: #64748b; line-height: 1.5; text-align: left; }
+  .card .card-size { font-size: 1rem; font-weight: 800; color: #1e40af; margin-bottom: 4px; }
+  .card .card-dim { font-size: 0.7rem; color: #94a3b8; margin-bottom: 6px; }
+
+  /* 枚数 */
+  .qty-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .qty-btn {
+    width: 40px; height: 40px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    color: #1e40af;
+    font-weight: 700;
+  }
+  .qty-btn:hover { border-color: #1e40af; background: #eff6ff; }
+  .qty-input {
+    width: 80px;
+    height: 40px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    outline: none;
+  }
+  .qty-input:focus { border-color: #1e40af; }
+  .qty-label { font-size: 0.9rem; color: #64748b; }
+
+  /* トグルスイッチ */
+  .toggle-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: #cbd5e1;
+    border-radius: 28px;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+  .slider:before {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  input:checked + .slider { background: #1e40af; }
+  input:checked + .slider:before { transform: translateX(24px); }
+  .toggle-info .toggle-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+  .toggle-info .toggle-desc { font-size: 0.78rem; color: #64748b; margin-top: 4px; line-height: 1.5; }
+  .lami-badge {
+    display: inline-block;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+  }
+
+  /* 当日テキスト */
+  .same-day-note {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 3px solid #cbd5e1;
+  }
+
+  /* 合計エリア（固定） */
+  .summary-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 2px solid #e2e8f0;
+    padding: 14px 20px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+  .summary-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .summary-details {
+    flex: 1;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .summary-item { font-size: 0.8rem; color: #64748b; }
+  .summary-item span { font-weight: 700; color: #1e293b; }
+  .summary-total {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e40af;
+    white-space: nowrap;
+  }
+  .summary-total small { font-size: 0.8rem; font-weight: 400; color: #94a3b8; }
+  .btn-inquiry {
+    background: #1e40af;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .btn-inquiry:hover { background: #1d4ed8; }
+  .btn-inquiry.copied { background: #16a34a; }
+  .summary-notes {
+    width: 100%;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+  .empty-msg {
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 640px) {
+    .cards-3 { grid-template-columns: 1fr; }
+    .cards-5 { grid-template-columns: repeat(3, 1fr); }
+    .cards-2 { grid-template-columns: 1fr 1fr; }
+    .summary-total { font-size: 1.3rem; }
+  }
+  @media (max-width: 400px) {
+    .cards-5 { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>大判印刷 見積もり計算機</h1>
+  <p>用紙・サイズ・枚数を選ぶだけで、すぐに料金がわかります</p>
+</header>
+
+<div class="container">
+
+  <!-- STEP1 用紙 -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 1</span>
+      <span class="step-title">用紙を選んでください</span>
+    </div>
+    <div class="cards cards-3" id="paper-cards">
+
+      <div class="card" data-paper="photo" onclick="selectCard(this,'paper')">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="6" y="6" width="44" height="44" rx="4" fill="#dbeafe" stroke="#93c5fd" stroke-width="2"/>
+          <rect x="12" y="12" width="32" height="32" rx="2" fill="white"/>
+          <rect x="16" y="16" width="24" height="16" rx="1" fill="#bfdbfe"/>
+          <circle cx="23" cy="22" r="3" fill="#60a5fa"/>
+          <path d="M16 32 L22 26 L28 31 L34 24 L40 32" stroke="#3b82f6" stroke-width="1.5" fill="none"/>
+          <rect x="16" y="34" width="24" height="3" rx="1" fill="#e2e8f0"/>
+          <rect x="16" y="39" width="16" height="3" rx="1" fill="#e2e8f0"/>
+        </svg>
+        <div class="card-name">フォト半光沢紙</div>
+        <div class="card-desc">光を適度に反射し、写真や文字の発色が美しい用紙です。光沢がありすぎず見やすいので、店内掲示・イベント告知・学会ポスターなど、屋内で使うポスター全般に広く使われています。</div>
+      </div>
+
+      <div class="card" data-paper="water" onclick="selectCard(this,'paper')">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="6" y="6" width="44" height="44" rx="22" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+          <path d="M28 14 C28 14 18 26 18 33 C18 38.5 22.5 43 28 43 C33.5 43 38 38.5 38 33 C38 26 28 14 28 14Z" fill="#4ade80" opacity="0.7"/>
+          <path d="M28 20 C28 20 22 29 22 34 C22 37.3 24.7 40 28 40" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+        <div class="card-name">耐水合成紙（ノリなし）</div>
+        <div class="card-desc">水・汚れ・破れに強いビニール素材の用紙です。雨に濡れてもにじまず、屋外掲示や飲食店のメニュー表など、濡れる可能性がある場所での使用に最適です。</div>
+      </div>
+
+      <div class="card" data-paper="sticker" onclick="selectCard(this,'paper')">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="6" y="6" width="44" height="44" rx="4" fill="#fef9c3" stroke="#fde047" stroke-width="2"/>
+          <rect x="14" y="14" width="28" height="28" rx="2" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+          <rect x="18" y="18" width="20" height="14" rx="1" fill="#fef08a"/>
+          <path d="M18 28 L24 23 L28 26 L32 21 L38 28" stroke="#eab308" stroke-width="1.5" fill="none"/>
+          <path d="M14 42 L42 42" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 2"/>
+          <rect x="18" y="34" width="20" height="3" rx="1" fill="#e2e8f0"/>
+          <path d="M36 8 L48 8 L48 20 L36 8Z" fill="#fbbf24" opacity="0.6"/>
+        </svg>
+        <div class="card-name">耐水合成紙糊付き</div>
+        <div class="card-desc">耐水合成紙の裏面に糊が付いており、窓ガラスや壁面にそのまま貼り付けられます。シール・ステッカー感覚で使えるため、ショップウィンドウや店舗装飾に最適です。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STEP2 サイズ -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 2</span>
+      <span class="step-title">サイズを選んでください</span>
+    </div>
+    <div class="cards cards-5" id="size-cards">
+
+      <div class="card" data-size="A4" onclick="selectCard(this,'size')">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
+          <rect x="17" y="10" width="14" height="28" rx="1" fill="#1e40af" opacity="0.7"/>
+        </svg>
+        <div class="card-size">A4</div>
+        <div class="card-dim">210×297mm</div>
+        <div class="card-desc">コピー用紙と同じサイズ。卓上メニューや小型フライヤーに。</div>
+      </div>
+
+      <div class="card" data-size="A3" onclick="selectCard(this,'size')">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
+          <rect x="13" y="8" width="22" height="32" rx="1" fill="#1e40af" opacity="0.7"/>
+        </svg>
+        <div class="card-size">A3</div>
+        <div class="card-dim">297×420mm</div>
+        <div class="card-desc">A4の2倍。飲食店メニューや小型ポスターに。</div>
+      </div>
+
+      <div class="card" data-size="A2" onclick="selectCard(this,'size')">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
+          <rect x="10" y="7" width="28" height="34" rx="1" fill="#1e40af" opacity="0.7"/>
+        </svg>
+        <div class="card-size">A2</div>
+        <div class="card-dim">420×594mm</div>
+        <div class="card-desc">A4の4倍。店頭ポスターや展示パネルに。</div>
+      </div>
+
+      <div class="card" data-size="A1" onclick="selectCard(this,'size')">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
+          <rect x="8" y="5" width="32" height="38" rx="1" fill="#1e40af" opacity="0.8"/>
+        </svg>
+        <div class="card-size">A1</div>
+        <div class="card-dim">594×841mm</div>
+        <div class="card-desc">定番ポスターサイズ。店舗ドアや壁面掲示に。</div>
+      </div>
+
+      <div class="card" data-size="A0" onclick="selectCard(this,'size')">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
+          <rect x="5" y="4" width="38" height="40" rx="1" fill="#1e40af" opacity="0.9"/>
+        </svg>
+        <div class="card-size">A0</div>
+        <div class="card-dim">841×1189mm</div>
+        <div class="card-desc">最大サイズ。展示会・学会・大型店舗の壁面に。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STEP3 枚数 -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 3</span>
+      <span class="step-title">枚数を入力してください</span>
+    </div>
+    <div class="qty-wrap">
+      <button class="qty-btn" onclick="changeQty(-1)">－</button>
+      <input class="qty-input" id="qty" type="number" min="1" max="999" value="1" oninput="calcTotal()">
+      <button class="qty-btn" onclick="changeQty(1)">＋</button>
+      <span class="qty-label">枚</span>
+    </div>
+  </div>
+
+  <!-- STEP4 納期 -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 4</span>
+      <span class="step-title">納期を選んでください</span>
+    </div>
+    <div class="cards cards-2" id="delivery-cards">
+
+      <div class="card" data-delivery="standard" onclick="selectCard(this,'delivery')">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="17" fill="#dbeafe" stroke="#93c5fd" stroke-width="2"/>
+          <path d="M20 10 L20 20 L27 27" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="card-name">標準（3〜5営業日）</div>
+        <div class="card-desc">通常の納期です。料金の追加はありません。</div>
+      </div>
+
+      <div class="card" data-delivery="express" onclick="selectCard(this,'delivery')">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="17" fill="#fef3c7" stroke="#fcd34d" stroke-width="2"/>
+          <path d="M12 20 L20 10 L28 20" fill="#f59e0b" opacity="0.8"/>
+          <path d="M20 10 L20 30" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="card-name">特急（1〜2営業日）</div>
+        <div class="card-desc">標準価格の30%増しになります。急ぎの場合はこちら。</div>
+      </div>
+
+    </div>
+    <div class="same-day-note">
+      ⏰ 当日対応をご希望の場合は、別途ご相談ください（応相談）
+    </div>
+  </div>
+
+  <!-- STEP5 ラミネート -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 5</span>
+      <span class="step-title">ラミネート加工（オプション）</span>
+    </div>
+    <div class="toggle-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="lami-toggle" onchange="calcTotal()">
+        <span class="slider"></span>
+      </label>
+      <div class="toggle-info">
+        <div class="toggle-name">
+          グロスラミネート（光沢）
+          <span class="lami-badge">+料金</span>
+        </div>
+        <div class="toggle-desc">
+          表面に光沢フィルムを貼ることで、耐久性・防水性が上がり高級感が出ます。<br>
+          屋外使用や長期掲示にもおすすめです。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 合計バー（固定） -->
+<div class="summary-bar">
+  <div class="summary-inner">
+    <div class="summary-details" id="summary-details">
+      <span class="empty-msg">用紙・サイズ・納期を選んでください</span>
+    </div>
+    <div class="summary-total" id="summary-total"></div>
+    <button class="btn-inquiry" id="inquiry-btn" onclick="copyInquiry()" style="display:none">
+      📋 この内容でお問い合わせ
+    </button>
+  </div>
+  <div class="summary-notes">
+    📌 データ調整（サイズ変換・PDF化）：<strong>無料</strong>　／
+    修正対応：<strong>1回まで無料・2回目以降 ¥1,000〜</strong>　／
+    デザイン制作：<strong>別途お見積り</strong>
+  </div>
+</div>
+
+<script>
+  const PRICES = {
+    photo:   { A4: 500,  A3: 800,  A2: 1400, A1: 1900, A0: 2800 },
+    water:   { A4: 700,  A3: 1200, A2: 2100, A1: 3200, A0: 5000 },
+    sticker: { A4: 900,  A3: 1500, A2: 2700, A1: 4000, A0: 6500 },
+  };
+  const LAMI = { A4: 300, A3: 500, A2: 700, A1: 1000, A0: 1500 };
+  const PAPER_NAMES = {
+    photo: 'フォト半光沢紙',
+    water: '耐水合成紙（ノリなし）',
+    sticker: '耐水合成紙糊付き',
+  };
+
+  let state = { paper: null, size: null, delivery: null };
+
+  function selectCard(el, type) {
+    document.querySelectorAll(`#${type}-cards .card`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    state[type] = el.dataset[type] || el.dataset.size || el.dataset.delivery;
+    calcTotal();
+  }
+
+  function changeQty(delta) {
+    const input = document.getElementById('qty');
+    let v = parseInt(input.value) || 1;
+    v = Math.min(999, Math.max(1, v + delta));
+    input.value = v;
+    calcTotal();
+  }
+
+  function calcTotal() {
+    const qty = Math.min(999, Math.max(1, parseInt(document.getElementById('qty').value) || 1));
+    const lami = document.getElementById('lami-toggle').checked;
+    const details = document.getElementById('summary-details');
+    const totalEl = document.getElementById('summary-total');
+    const btn = document.getElementById('inquiry-btn');
+
+    if (!state.paper || !state.size || !state.delivery) {
+      details.innerHTML = '<span class="empty-msg">用紙・サイズ・納期を選んでください</span>';
+      totalEl.textContent = '';
+      btn.style.display = 'none';
+      return;
+    }
+
+    let unitPrice = PRICES[state.paper][state.size];
+    const lamiPrice = lami ? LAMI[state.size] : 0;
+
+    if (state.delivery === 'express') {
+      unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
+    }
+
+    const unitWithLami = unitPrice + lamiPrice;
+    const total = unitWithLami * qty;
+
+    details.innerHTML = `
+      <div class="summary-item">用紙 <span>${PAPER_NAMES[state.paper]}</span></div>
+      <div class="summary-item">サイズ <span>${state.size}</span></div>
+      <div class="summary-item">単価 <span>¥${unitPrice.toLocaleString()}</span></div>
+      <div class="summary-item">枚数 <span>${qty}枚</span></div>
+      ${lami ? `<div class="summary-item">ラミネート <span>+¥${(lamiPrice * qty).toLocaleString()}</span></div>` : ''}
+    `;
+    totalEl.innerHTML = `合計 <small>（税込）</small> ¥${total.toLocaleString()}`;
+    btn.style.display = '';
+    btn.classList.remove('copied');
+    btn.textContent = '📋 この内容でお問い合わせ';
+  }
+
+  function copyInquiry() {
+    const qty = parseInt(document.getElementById('qty').value) || 1;
+    const lami = document.getElementById('lami-toggle').checked;
+    let unitPrice = PRICES[state.paper][state.size];
+    const lamiPrice = lami ? LAMI[state.size] : 0;
+    if (state.delivery === 'express') {
+      unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
+    }
+    const total = (unitPrice + lamiPrice) * qty;
+
+    const deliveryLabel = state.delivery === 'standard' ? '標準（3〜5営業日）' : '特急（1〜2営業日）';
+    const text = `【大判印刷 お見積り内容】
+用紙：${PAPER_NAMES[state.paper]}
+サイズ：${state.size}
+枚数：${qty}枚
+納期：${deliveryLabel}
+ラミネート：${lami ? 'グロス（光沢）あり' : 'なし'}
+単価：¥${unitPrice.toLocaleString()}
+合計：¥${total.toLocaleString()}（税込）
+
+上記の内容でお見積りをお願いします。`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('inquiry-btn');
+      btn.classList.add('copied');
+      btn.textContent = '✅ コピーしました！';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = '📋 この内容でお問い合わせ';
+      }, 2500);
+    });
+  }
+</script>
+</body>
+</html>
