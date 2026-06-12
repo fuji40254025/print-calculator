@@ -487,7 +487,7 @@
       </label>
       <div class="toggle-info">
         <div class="toggle-name">
-          ラミ込パック（グロス／マット選択可）
+          ラミ込パック（光沢グロス）
           <span class="lami-badge">単体加工より約4割お得</span>
         </div>
         <div class="toggle-desc">
@@ -626,7 +626,7 @@
 サイズ：${state.size}
 枚数：${q.qty}枚
 納期：${DELIVERY_LABELS[state.delivery]}
-ラミネート：${q.lami ? 'ラミ込パック（グロス／マット）あり' : 'なし'}
+ラミネート：${q.lami ? 'ラミ込パック（光沢グロス）あり' : 'なし'}
 印刷単価：¥${q.printUnit.toLocaleString()}${q.rate > 0 ? `
 まとめ割：−${Math.round(q.rate*100)}%（−¥${q.discountAmt.toLocaleString()}）` : ''}${q.lami ? `
 ラミ込パック：+¥${q.lamiSubtotal.toLocaleString()}` : ''}
