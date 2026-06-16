@@ -57,7 +57,9 @@
   }
   .cards-3 { grid-template-columns: repeat(3, 1fr); }
   .cards-5 { grid-template-columns: repeat(5, 1fr); }
+  .cards-7 { grid-template-columns: repeat(7, 1fr); }
   .cards-2 { grid-template-columns: repeat(2, 1fr); }
+  .cards-3-del { grid-template-columns: repeat(3, 1fr); }
 
   .card {
     border: 2px solid #e2e8f0;
@@ -233,14 +235,27 @@
     font-size: 0.9rem;
   }
 
+  .discount-badge {
+    display: inline-block;
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
   @media (max-width: 640px) {
     .cards-3 { grid-template-columns: 1fr; }
     .cards-5 { grid-template-columns: repeat(3, 1fr); }
+    .cards-7 { grid-template-columns: repeat(4, 1fr); }
+    .cards-3-del { grid-template-columns: repeat(3, 1fr); }
     .cards-2 { grid-template-columns: 1fr 1fr; }
     .summary-total { font-size: 1.3rem; }
   }
   @media (max-width: 400px) {
     .cards-5 { grid-template-columns: repeat(2, 1fr); }
+    .cards-7 { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -308,56 +323,76 @@
       <span class="step-num">STEP 2</span>
       <span class="step-title">サイズを選んでください</span>
     </div>
-    <div class="cards cards-5" id="size-cards">
+    <div class="cards cards-7" id="size-cards">
 
       <div class="card" data-size="A4" onclick="selectCard(this,'size')">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
-          <rect x="17" y="10" width="14" height="28" rx="1" fill="#1e40af" opacity="0.7"/>
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#f1f5f9"/>
+          <rect x="13" y="6" width="14" height="28" rx="1" fill="#1e40af" opacity="0.7"/>
         </svg>
         <div class="card-size">A4</div>
-        <div class="card-dim">210×297mm</div>
-        <div class="card-desc">コピー用紙と同じサイズ。卓上メニューや小型フライヤーに。</div>
+        <div class="card-dim">210×297</div>
+        <div class="card-desc" style="font-size:0.68rem">卓上メニュー・フライヤーに</div>
       </div>
 
       <div class="card" data-size="A3" onclick="selectCard(this,'size')">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
-          <rect x="13" y="8" width="22" height="32" rx="1" fill="#1e40af" opacity="0.7"/>
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#f1f5f9"/>
+          <rect x="10" y="5" width="20" height="30" rx="1" fill="#1e40af" opacity="0.75"/>
         </svg>
         <div class="card-size">A3</div>
-        <div class="card-dim">297×420mm</div>
-        <div class="card-desc">A4の2倍。飲食店メニューや小型ポスターに。</div>
+        <div class="card-dim">297×420</div>
+        <div class="card-desc" style="font-size:0.68rem">メニュー・小型ポスターに</div>
       </div>
 
       <div class="card" data-size="A2" onclick="selectCard(this,'size')">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
-          <rect x="10" y="7" width="28" height="34" rx="1" fill="#1e40af" opacity="0.7"/>
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#f1f5f9"/>
+          <rect x="8" y="4" width="24" height="32" rx="1" fill="#1e40af" opacity="0.8"/>
         </svg>
         <div class="card-size">A2</div>
-        <div class="card-dim">420×594mm</div>
-        <div class="card-desc">A4の4倍。店頭ポスターや展示パネルに。</div>
+        <div class="card-dim">420×594</div>
+        <div class="card-desc" style="font-size:0.68rem">店頭ポスター・展示パネルに</div>
+      </div>
+
+      <div class="card" data-size="B2" onclick="selectCard(this,'size')">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#fef3c7"/>
+          <rect x="7" y="4" width="26" height="33" rx="1" fill="#d97706" opacity="0.75"/>
+        </svg>
+        <div class="card-size" style="color:#d97706">B2</div>
+        <div class="card-dim">515×728</div>
+        <div class="card-desc" style="font-size:0.68rem">A2より一回り大きいポスターに</div>
       </div>
 
       <div class="card" data-size="A1" onclick="selectCard(this,'size')">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
-          <rect x="8" y="5" width="32" height="38" rx="1" fill="#1e40af" opacity="0.8"/>
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#f1f5f9"/>
+          <rect x="6" y="3" width="28" height="34" rx="1" fill="#1e40af" opacity="0.85"/>
         </svg>
         <div class="card-size">A1</div>
-        <div class="card-dim">594×841mm</div>
-        <div class="card-desc">定番ポスターサイズ。店舗ドアや壁面掲示に。</div>
+        <div class="card-dim">594×841</div>
+        <div class="card-desc" style="font-size:0.68rem">定番ポスター・壁面掲示に</div>
+      </div>
+
+      <div class="card" data-size="B1" onclick="selectCard(this,'size')">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#fef3c7"/>
+          <rect x="5" y="3" width="30" height="35" rx="1" fill="#d97706" opacity="0.8"/>
+        </svg>
+        <div class="card-size" style="color:#d97706">B1</div>
+        <div class="card-dim">728×1030</div>
+        <div class="card-desc" style="font-size:0.68rem">A1より大きい大判ポスターに</div>
       </div>
 
       <div class="card" data-size="A0" onclick="selectCard(this,'size')">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <rect width="48" height="48" rx="4" fill="#f1f5f9"/>
-          <rect x="5" y="4" width="38" height="40" rx="1" fill="#1e40af" opacity="0.9"/>
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect width="40" height="40" rx="4" fill="#f1f5f9"/>
+          <rect x="4" y="2" width="32" height="36" rx="1" fill="#1e40af" opacity="0.9"/>
         </svg>
         <div class="card-size">A0</div>
-        <div class="card-dim">841×1189mm</div>
-        <div class="card-desc">最大サイズ。展示会・学会・大型店舗の壁面に。</div>
+        <div class="card-dim">841×1189</div>
+        <div class="card-desc" style="font-size:0.68rem">展示会・大型壁面に</div>
       </div>
 
     </div>
@@ -383,7 +418,7 @@
       <span class="step-num">STEP 4</span>
       <span class="step-title">納期を選んでください</span>
     </div>
-    <div class="cards cards-2" id="delivery-cards">
+    <div class="cards cards-3-del" id="delivery-cards">
 
       <div class="card" data-delivery="standard" onclick="selectCard(this,'delivery')">
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -404,9 +439,17 @@
         <div class="card-desc">標準価格の30%増しになります。急ぎの場合はこちら。</div>
       </div>
 
-    </div>
-    <div class="same-day-note">
-      ⏰ 当日対応をご希望の場合は、別途ご相談ください（応相談）
+      <div class="card" data-delivery="sameday" onclick="selectCard(this,'delivery')">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="17" fill="#fee2e2" stroke="#fca5a5" stroke-width="2"/>
+          <path d="M20 10 L20 20 L26 20" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M20 10 L24 6" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+          <path d="M20 10 L28 12" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="card-name" style="color:#dc2626">当日対応</div>
+        <div class="card-desc">標準価格の50%増しになります。当日仕上げが必要な場合。</div>
+      </div>
+
     </div>
   </div>
 
@@ -493,11 +536,21 @@
 
 <script>
   const PRICES = {
-    photo:   { A4: 500,  A3: 800,  A2: 1400, A1: 1900, A0: 2800 },
-    water:   { A4: 700,  A3: 1200, A2: 2100, A1: 3200, A0: 5000 },
-    sticker: { A4: 900,  A3: 1500, A2: 2700, A1: 4000, A0: 6500 },
+    photo:   { A4: 500,  A3: 800,  A2: 1400, B2: 1650, A1: 1900, B1: 2350, A0: 2800 },
+    water:   { A4: 600,  A3: 1000, A2: 1600, B2: 2000, A1: 2400, B1: 3000, A0: 3600 },
+    sticker: { A4: 800,  A3: 1300, A2: 2000, B2: 2450, A1: 2900, B1: 3700, A0: 4500 },
   };
-  const LAMI = { A4: 300, A3: 500, A2: 700, A1: 1000, A0: 1500 };
+  const LAMI = { A4: 200, A3: 300, A2: 400, B2: 350, A1: 600, B1: 650, A0: 900 };
+  const DISCOUNT = [
+    { min: 50, rate: 0.20, label: '50枚〜 20%OFF' },
+    { min: 30, rate: 0.15, label: '30〜49枚 15%OFF' },
+    { min: 10, rate: 0.10, label: '10〜29枚 10%OFF' },
+    { min: 2,  rate: 0.05, label: '2〜9枚 5%OFF' },
+    { min: 1,  rate: 0,    label: '' },
+  ];
+  function getDiscount(qty) {
+    return DISCOUNT.find(d => qty >= d.min) || DISCOUNT[DISCOUNT.length - 1];
+  }
   const PAPER_NAMES = {
     photo: 'フォト半光沢紙',
     water: '耐水合成紙（ノリなし）',
@@ -558,17 +611,26 @@
 
     if (state.delivery === 'express') {
       unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
+    } else if (state.delivery === 'sameday') {
+      unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
     }
 
-    const printTotal = (unitPrice + lamiPrice) * qty;
+    const disc = getDiscount(qty);
+    const unitWithLami = unitPrice + lamiPrice;
+    const printBeforeDiscount = unitWithLami * qty;
+    const discountAmt = Math.round(printBeforeDiscount * disc.rate);
+    const printTotal = printBeforeDiscount - discountAmt;
     const total = printTotal + designTotal;
 
+    const deliveryLabels = { standard: '標準', express: '特急（+30%）', sameday: '当日（+50%）' };
     details.innerHTML = `
       <div class="summary-item">用紙 <span>${PAPER_NAMES[state.paper]}</span></div>
       <div class="summary-item">サイズ <span>${state.size}</span></div>
+      <div class="summary-item">納期 <span>${deliveryLabels[state.delivery]}</span></div>
       <div class="summary-item">単価 <span>¥${unitPrice.toLocaleString()}</span></div>
-      <div class="summary-item">枚数 <span>${qty}枚</span></div>
+      <div class="summary-item">枚数 <span>${qty}枚${disc.rate > 0 ? `<span class="discount-badge">${disc.label}</span>` : ''}</span></div>
       ${lami ? `<div class="summary-item">ラミネート <span>+¥${(lamiPrice * qty).toLocaleString()}</span></div>` : ''}
+      ${disc.rate > 0 ? `<div class="summary-item">割引 <span style="color:#16a34a">−¥${discountAmt.toLocaleString()}</span></div>` : ''}
       ${design ? `<div class="summary-item">デザイン <span>+¥${designTotal.toLocaleString()}（${designQty}点）</span></div>` : ''}
     `;
     totalEl.innerHTML = `合計 <small>（税込）</small> ¥${total.toLocaleString()}`;
@@ -587,21 +649,25 @@
     const designTotal = design ? DESIGN_FEE * designQty : 0;
     if (state.delivery === 'express') {
       unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
+    } else if (state.delivery === 'sameday') {
+      unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
     }
-    const printTotal = (unitPrice + lamiPrice) * qty;
+    const disc = getDiscount(qty);
+    const printBeforeDiscount = (unitPrice + lamiPrice) * qty;
+    const discountAmt = Math.round(printBeforeDiscount * disc.rate);
+    const printTotal = printBeforeDiscount - discountAmt;
     const total = printTotal + designTotal;
 
-    const deliveryLabel = state.delivery === 'standard' ? '標準（3〜5営業日）' : '特急（1〜2営業日）';
+    const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const text = `【大判印刷 お見積り内容】
 用紙：${PAPER_NAMES[state.paper]}
 サイズ：${state.size}
-枚数：${qty}枚
-納期：${deliveryLabel}
+枚数：${qty}枚${disc.rate > 0 ? `（${disc.label}）` : ''}
+納期：${deliveryLabels[state.delivery]}
 ラミネート：${lami ? 'グロス（光沢）あり' : 'なし'}
 デザイン制作：${design ? `あり（${designQty}点 / ¥${designTotal.toLocaleString()}）` : 'なし（データ持込）'}
-印刷費：¥${printTotal.toLocaleString()}
-${design ? `デザイン費：¥${designTotal.toLocaleString()}` : ''}
-合計：¥${total.toLocaleString()}（税込）
+印刷費：¥${printTotal.toLocaleString()}${discountAmt > 0 ? `（割引 −¥${discountAmt.toLocaleString()}）` : ''}
+${design ? `デザイン費：¥${designTotal.toLocaleString()}` : ''}合計：¥${total.toLocaleString()}（税込）
 
 上記の内容でお見積りをお願いします。`;
 
