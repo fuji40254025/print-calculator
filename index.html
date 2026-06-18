@@ -245,6 +245,119 @@
     border-radius: 20px;
     margin-left: 6px;
   }
+
+  /* ヘッダーロゴ */
+  .header-logo-wrap { margin-top: 12px; }
+  .header-logo { height: 52px; width: auto; }
+
+  /* 受け取り方法 */
+  .ship-note {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: #fef3c7;
+    border-left: 4px solid #fbbf24;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #92400e;
+    line-height: 1.7;
+    display: none;
+  }
+  .pickup-wrap {
+    margin-top: 14px;
+    padding: 16px;
+    background: #f0fdf4;
+    border-radius: 10px;
+    border: 1px solid #bbf7d0;
+    display: none;
+  }
+  .pickup-label { font-size: 0.88rem; font-weight: 700; color: #15803d; margin-bottom: 10px; }
+  .date-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #d1fae5;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background: white;
+  }
+  .date-input:focus { border-color: #16a34a; outline: none; }
+  .date-note { margin-top: 8px; font-size: 0.75rem; color: #64748b; }
+
+  /* モーダル */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-title { font-size: 1.15rem; font-weight: 800; color: #1e293b; margin-bottom: 4px; }
+  .modal-subtitle { font-size: 0.78rem; color: #94a3b8; margin-bottom: 18px; }
+  .modal-divider { border: none; border-top: 2px solid #f1f5f9; margin: 14px 0; }
+  .modal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7px 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #f8fafc;
+  }
+  .modal-row:last-of-type { border-bottom: none; }
+  .modal-key { color: #64748b; flex-shrink: 0; }
+  .modal-val { font-weight: 700; color: #1e293b; text-align: right; }
+  .modal-total-row {
+    background: #eff6ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 16px 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-total-label { font-size: 0.88rem; color: #1e40af; font-weight: 700; }
+  .modal-total-val { font-size: 1.5rem; font-weight: 800; color: #1e40af; }
+  .modal-btn-row { display: flex; gap: 10px; }
+  .btn-modal-cancel {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    font-size: 0.88rem;
+    cursor: pointer;
+    color: #64748b;
+    font-weight: 700;
+  }
+  .btn-modal-send {
+    flex: 2;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #1e40af;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-modal-send:hover { background: #1d4ed8; }
+  .success-wrap { text-align: center; padding: 10px 0; }
+  .success-icon { font-size: 3.5rem; margin-bottom: 14px; }
+  .success-title { font-size: 1.3rem; font-weight: 800; color: #16a34a; margin-bottom: 10px; }
+  .success-desc { font-size: 0.85rem; color: #64748b; line-height: 1.7; }
   @media (max-width: 640px) {
     .cards-3 { grid-template-columns: 1fr; }
     .cards-5 { grid-template-columns: repeat(3, 1fr); }
@@ -262,6 +375,9 @@
 <body>
 
 <header>
+  <div class="header-logo-wrap">
+    <img src="logo.png" alt="ококороодору TOYO" class="header-logo">
+  </div>
   <h1>大判印刷 見積もり計算機</h1>
   <p>用紙・サイズ・枚数を選ぶだけで、すぐに料金がわかります</p>
 </header>
@@ -477,8 +593,6 @@
     </div>
   </div>
 
-</div>
-
   <!-- STEP6 デザイン -->
   <div class="step">
     <div class="step-label">
@@ -516,6 +630,96 @@
     </div>
   </div>
 
+  <!-- STEP7 受け取り方法 -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 7</span>
+      <span class="step-title">受け取り方法を選んでください</span>
+    </div>
+    <div class="cards cards-2" id="receive-cards">
+
+      <div class="card" data-receive="pickup" onclick="selectCard(this,'receive')">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="4" fill="#f0fdf4"/>
+          <rect x="8" y="22" width="24" height="12" rx="2" fill="#86efac" stroke="#16a34a" stroke-width="1.5"/>
+          <path d="M13 22 L13 14 C13 12 15 11 17 11 L23 11 C25 11 27 12 27 14 L27 22" stroke="#16a34a" stroke-width="1.5" fill="none"/>
+          <circle cx="14" cy="34" r="3" fill="#15803d"/>
+          <circle cx="26" cy="34" r="3" fill="#15803d"/>
+          <path d="M20 14 L20 19 M18 17 L20 19 L22 17" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card-name">直接お受け取り</div>
+        <div class="card-desc">弊社まで取りにお越しいただきます。送料が発生しません。</div>
+      </div>
+
+      <div class="card" data-receive="delivery" onclick="selectCard(this,'receive')">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="4" fill="#eff6ff"/>
+          <rect x="5" y="16" width="20" height="14" rx="2" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+          <path d="M25 20 L35 20 L35 30 L25 30" stroke="#3b82f6" stroke-width="1.5" fill="#dbeafe"/>
+          <path d="M25 20 L30 14 L35 20" fill="#93c5fd"/>
+          <circle cx="11" cy="30" r="3" fill="#1e40af"/>
+          <circle cx="29" cy="30" r="3" fill="#1e40af"/>
+        </svg>
+        <div class="card-name">配送（送料お客様負担）</div>
+        <div class="card-desc">ご指定の住所へ発送します。送料は実費でご負担ください。</div>
+      </div>
+
+    </div>
+
+    <!-- 配送の場合の注記 -->
+    <div class="ship-note" id="ship-note">
+      📦 <strong>配送について</strong><br>
+      梱包・発送はこちらで行います。送料は実費（サイズ・重量・送り先による）となり、請求書にてご案内します。<br>
+      ※ ヤマト運輸・佐川急便にて発送予定です。
+    </div>
+
+    <!-- 取りに来る場合の日付指定 -->
+    <div class="pickup-wrap" id="pickup-wrap">
+      <div class="pickup-label">📅 受け取り希望日を入力してください（平日のみ）</div>
+      <input type="date" id="pickup-date" class="date-input" onchange="onPickupDateChange(this)">
+      <div class="date-note" id="date-note">※ 土日・祝日はお受け取りいただけません。平日のみご対応可能です。</div>
+    </div>
+
+  </div>
+
+</div><!-- /container -->
+
+<!-- お問い合わせ確認モーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalIfBg(event)">
+  <div class="modal-box" id="modal-box">
+
+    <!-- 確認画面 -->
+    <div id="modal-confirm">
+      <div class="modal-title">📋 お見積り内容の確認</div>
+      <div class="modal-subtitle">以下の内容でご担当者にお問い合わせを送信します</div>
+      <div id="modal-rows"></div>
+      <div class="modal-total-row">
+        <span class="modal-total-label">合計金額（税込）</span>
+        <span class="modal-total-val" id="modal-total-val"></span>
+      </div>
+      <div class="modal-btn-row">
+        <button class="btn-modal-cancel" onclick="closeModal()">← 戻る</button>
+        <button class="btn-modal-send" onclick="sendInquiry()">✉️ この内容で送信する</button>
+      </div>
+    </div>
+
+    <!-- 送信完了画面 -->
+    <div id="modal-success" style="display:none">
+      <div class="success-wrap">
+        <div class="success-icon">✅</div>
+        <div class="success-title">送信準備が完了しました！</div>
+        <div class="success-desc">
+          メールアプリが開きます。内容をご確認のうえ<br>
+          「送信」ボタンを押して送信を完了してください。<br><br>
+          <span style="color:#94a3b8; font-size:0.78rem">※ メールアプリが開かない場合は<br>ht.1201@toyo-1040.com へ直接ご連絡ください</span>
+        </div>
+        <button class="btn-modal-send" style="margin-top:20px; width:100%" onclick="closeModal()">閉じる</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- 合計バー（固定） -->
 <div class="summary-bar">
   <div class="summary-inner">
@@ -523,8 +727,8 @@
       <span class="empty-msg">用紙・サイズ・納期を選んでください</span>
     </div>
     <div class="summary-total" id="summary-total"></div>
-    <button class="btn-inquiry" id="inquiry-btn" onclick="copyInquiry()" style="display:none">
-      📋 この内容でお問い合わせ
+    <button class="btn-inquiry" id="inquiry-btn" onclick="openModal()" style="display:none">
+      ✉️ お問い合わせ
     </button>
   </div>
   <div class="summary-notes">
@@ -558,12 +762,49 @@
   };
 
   const DESIGN_FEE = 6000;
-  let state = { paper: null, size: null, delivery: null };
+  const INQUIRY_MAIL = 'ht.1201@toyo-1040.com';
+  let state = { paper: null, size: null, delivery: null, receive: null };
 
   function selectCard(el, type) {
     document.querySelectorAll(`#${type}-cards .card`).forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
-    state[type] = el.dataset[type] || el.dataset.size || el.dataset.delivery;
+    state[type] = el.dataset[type] || el.dataset.size || el.dataset.delivery || el.dataset.receive;
+    if (type === 'receive') onReceiveChange();
+    calcTotal();
+  }
+
+  function onReceiveChange() {
+    const shipNote = document.getElementById('ship-note');
+    const pickupWrap = document.getElementById('pickup-wrap');
+    if (state.receive === 'delivery') {
+      shipNote.style.display = 'block';
+      pickupWrap.style.display = 'none';
+    } else if (state.receive === 'pickup') {
+      shipNote.style.display = 'none';
+      pickupWrap.style.display = 'block';
+      const dateEl = document.getElementById('pickup-date');
+      if (!dateEl.min) {
+        const tom = new Date(); tom.setDate(tom.getDate() + 1);
+        dateEl.min = tom.toISOString().split('T')[0];
+      }
+    } else {
+      shipNote.style.display = 'none';
+      pickupWrap.style.display = 'none';
+    }
+  }
+
+  function onPickupDateChange(el) {
+    const d = new Date(el.value + 'T00:00:00');
+    const day = d.getDay();
+    const note = document.getElementById('date-note');
+    if (day === 0 || day === 6) {
+      note.textContent = '⚠️ 土日はお受け取りいただけません。平日の日付を選択してください。';
+      note.style.color = '#dc2626';
+      el.value = '';
+    } else {
+      note.textContent = '✅ 平日のみご対応可能です（祝日はお電話でご確認ください）。';
+      note.style.color = '#16a34a';
+    }
     calcTotal();
   }
 
@@ -589,11 +830,25 @@
     calcTotal();
   }
 
-  function calcTotal() {
+  function calcValues() {
     const qty = Math.min(999, Math.max(1, parseInt(document.getElementById('qty').value) || 1));
     const lami = document.getElementById('lami-toggle').checked;
     const design = document.getElementById('design-toggle').checked;
     const designQty = Math.min(99, Math.max(1, parseInt(document.getElementById('design-qty').value) || 1));
+    let unitPrice = PRICES[state.paper][state.size];
+    const lamiPrice = lami ? LAMI[state.size] : 0;
+    const designTotal = design ? DESIGN_FEE * designQty : 0;
+    if (state.delivery === 'express') unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
+    else if (state.delivery === 'sameday') unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
+    const disc = getDiscount(qty);
+    const printBeforeDiscount = (unitPrice + lamiPrice) * qty;
+    const discountAmt = Math.round(printBeforeDiscount * disc.rate);
+    const printTotal = printBeforeDiscount - discountAmt;
+    const total = printTotal + designTotal;
+    return { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total };
+  }
+
+  function calcTotal() {
     const details = document.getElementById('summary-details');
     const totalEl = document.getElementById('summary-total');
     const btn = document.getElementById('inquiry-btn');
@@ -605,23 +860,7 @@
       return;
     }
 
-    let unitPrice = PRICES[state.paper][state.size];
-    const lamiPrice = lami ? LAMI[state.size] : 0;
-    const designTotal = design ? DESIGN_FEE * designQty : 0;
-
-    if (state.delivery === 'express') {
-      unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
-    } else if (state.delivery === 'sameday') {
-      unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
-    }
-
-    const disc = getDiscount(qty);
-    const unitWithLami = unitPrice + lamiPrice;
-    const printBeforeDiscount = unitWithLami * qty;
-    const discountAmt = Math.round(printBeforeDiscount * disc.rate);
-    const printTotal = printBeforeDiscount - discountAmt;
-    const total = printTotal + designTotal;
-
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
     const deliveryLabels = { standard: '標準', express: '特急（+30%）', sameday: '当日（+50%）' };
     details.innerHTML = `
       <div class="summary-item">用紙 <span>${PAPER_NAMES[state.paper]}</span></div>
@@ -635,51 +874,79 @@
     `;
     totalEl.innerHTML = `合計 <small>（税込）</small> ¥${total.toLocaleString()}`;
     btn.style.display = '';
-    btn.classList.remove('copied');
-    btn.textContent = '📋 この内容でお問い合わせ';
   }
 
-  function copyInquiry() {
-    const qty = parseInt(document.getElementById('qty').value) || 1;
-    const lami = document.getElementById('lami-toggle').checked;
-    const design = document.getElementById('design-toggle').checked;
-    const designQty = parseInt(document.getElementById('design-qty').value) || 1;
-    let unitPrice = PRICES[state.paper][state.size];
-    const lamiPrice = lami ? LAMI[state.size] : 0;
-    const designTotal = design ? DESIGN_FEE * designQty : 0;
-    if (state.delivery === 'express') {
-      unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
-    } else if (state.delivery === 'sameday') {
-      unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
-    }
-    const disc = getDiscount(qty);
-    const printBeforeDiscount = (unitPrice + lamiPrice) * qty;
-    const discountAmt = Math.round(printBeforeDiscount * disc.rate);
-    const printTotal = printBeforeDiscount - discountAmt;
-    const total = printTotal + designTotal;
-
+  /* ===== モーダル ===== */
+  function openModal() {
+    if (!state.paper || !state.size || !state.delivery) return;
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
-    const text = `【大判印刷 お見積り内容】
-用紙：${PAPER_NAMES[state.paper]}
-サイズ：${state.size}
-枚数：${qty}枚${disc.rate > 0 ? `（${disc.label}）` : ''}
-納期：${deliveryLabels[state.delivery]}
-ラミネート：${lami ? 'グロス（光沢）あり' : 'なし'}
-デザイン制作：${design ? `あり（${designQty}点 / ¥${designTotal.toLocaleString()}）` : 'なし（データ持込）'}
-印刷費：¥${printTotal.toLocaleString()}${discountAmt > 0 ? `（割引 −¥${discountAmt.toLocaleString()}）` : ''}
-${design ? `デザイン費：¥${designTotal.toLocaleString()}` : ''}合計：¥${total.toLocaleString()}（税込）
+    const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
+    const pickupDate = document.getElementById('pickup-date').value;
 
-上記の内容でお見積りをお願いします。`;
+    const rows = [
+      ['用紙', PAPER_NAMES[state.paper]],
+      ['サイズ', state.size],
+      ['枚数', `${qty}枚${disc.rate > 0 ? '（' + disc.label + '）' : ''}`],
+      ['納期', deliveryLabels[state.delivery]],
+      ['ラミネート', lami ? 'グロス（光沢）あり' : 'なし'],
+      ['デザイン制作', design ? `あり（${designQty}点）` : 'なし（データ持込）'],
+      ...(state.receive ? [['受け取り方法', receiveLabels[state.receive] || '']] : []),
+      ...(state.receive === 'pickup' && pickupDate ? [['受け取り希望日', pickupDate]] : []),
+      ['印刷費', `¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引込み）' : ''}`],
+      ...(design ? [['デザイン費', `¥${designTotal.toLocaleString()}`]] : []),
+    ];
 
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('inquiry-btn');
-      btn.classList.add('copied');
-      btn.textContent = '✅ コピーしました！';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.textContent = '📋 この内容でお問い合わせ';
-      }, 2500);
-    });
+    document.getElementById('modal-rows').innerHTML = rows.map(([k, v]) =>
+      `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val">${v}</span></div>`
+    ).join('');
+    document.getElementById('modal-total-val').textContent = `¥${total.toLocaleString()}`;
+    document.getElementById('modal-confirm').style.display = '';
+    document.getElementById('modal-success').style.display = 'none';
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function closeModalIfBg(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  function sendInquiry() {
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
+    const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
+    const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
+    const pickupDate = document.getElementById('pickup-date').value;
+
+    const body = [
+      '【大判印刷 お見積りのご依頼】',
+      '',
+      `用紙：${PAPER_NAMES[state.paper]}`,
+      `サイズ：${state.size}`,
+      `枚数：${qty}枚${disc.rate > 0 ? '（' + disc.label + '）' : ''}`,
+      `納期：${deliveryLabels[state.delivery]}`,
+      `ラミネート：${lami ? 'グロス（光沢）あり' : 'なし'}`,
+      `デザイン制作：${design ? 'あり（' + designQty + '点 / ¥' + designTotal.toLocaleString() + '）' : 'なし（データ持込）'}`,
+      ...(state.receive ? [`受け取り方法：${receiveLabels[state.receive] || ''}`] : []),
+      ...(state.receive === 'pickup' && pickupDate ? [`受け取り希望日：${pickupDate}`] : []),
+      '',
+      `印刷費：¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引 −¥' + discountAmt.toLocaleString() + '）' : ''}`,
+      ...(design ? [`デザイン費：¥${designTotal.toLocaleString()}`] : []),
+      `合計：¥${total.toLocaleString()}（税込）`,
+      '',
+      '------',
+      '（お名前・ご連絡先・納品先住所などをご記入のうえ送信してください）',
+    ].join('\n');
+
+    const mailtoUrl = `mailto:${INQUIRY_MAIL}?subject=${encodeURIComponent('大判印刷 お見積りのご依頼')}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+
+    document.getElementById('modal-confirm').style.display = 'none';
+    document.getElementById('modal-success').style.display = '';
   }
 </script>
 </body>
