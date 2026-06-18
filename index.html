@@ -17,11 +17,28 @@
   header {
     background: linear-gradient(135deg, #1e40af, #3b82f6);
     color: white;
-    padding: 24px 20px;
-    text-align: center;
+    padding: 18px 24px;
   }
-  header h1 { font-size: 1.6rem; font-weight: 700; }
-  header p { font-size: 0.9rem; margin-top: 6px; opacity: 0.85; }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .header-logo-left {
+    height: 56px;
+    width: auto;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1);
+  }
+  .header-text { flex: 1; }
+  header h1 { font-size: 1.5rem; font-weight: 700; }
+  header p { font-size: 0.85rem; margin-top: 4px; opacity: 0.85; }
+  @media (max-width: 480px) {
+    .header-logo-left { height: 40px; }
+    header h1 { font-size: 1.2rem; }
+  }
 
   .container { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
 
@@ -246,9 +263,8 @@
     margin-left: 6px;
   }
 
-  /* ヘッダーロゴ */
-  .header-logo-wrap { margin-top: 12px; }
-  .header-logo { height: 52px; width: auto; }
+  /* フッターロゴ */
+  .footer-logo { height: 36px; width: auto; filter: brightness(0) invert(1); opacity: 0.7; }
 
   /* 受け取り方法 */
   .ship-note {
@@ -375,11 +391,13 @@
 <body>
 
 <header>
-  <div class="header-logo-wrap">
-    <img src="logo.png" alt="ококороодору TOYO" class="header-logo">
+  <div class="header-inner">
+    <img src="logo.png" alt="ококороодору TOYO" class="header-logo-left">
+    <div class="header-text">
+      <h1>大判印刷 見積もり計算機</h1>
+      <p>用紙・サイズ・枚数を選ぶだけで、すぐに料金がわかります</p>
+    </div>
   </div>
-  <h1>大判印刷 見積もり計算機</h1>
-  <p>用紙・サイズ・枚数を選ぶだけで、すぐに料金がわかります</p>
 </header>
 
 <div class="container">
@@ -711,7 +729,7 @@
         <div class="success-desc">
           メールアプリが開きます。内容をご確認のうえ<br>
           「送信」ボタンを押して送信を完了してください。<br><br>
-          <span style="color:#94a3b8; font-size:0.78rem">※ メールアプリが開かない場合は<br>ht.1201@toyo-1040.com へ直接ご連絡ください</span>
+          <span style="color:#94a3b8; font-size:0.78rem">※ メールアプリが開かない場合は<br>it.0612@toyo-1040.com または<br>fa.1103@toyo-1040.com へ直接ご連絡ください</span>
         </div>
         <button class="btn-modal-send" style="margin-top:20px; width:100%" onclick="closeModal()">閉じる</button>
       </div>
@@ -731,10 +749,13 @@
       ✉️ お問い合わせ
     </button>
   </div>
-  <div class="summary-notes">
-    📌 データ調整（サイズ変換・PDF化）：<strong>無料</strong>　／
-    修正対応：<strong>1回まで無料・2回目以降 ¥1,000〜</strong>　／
-    デザイン制作：<strong>別途お見積り</strong>
+  <div class="summary-notes" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <div>
+      📌 データ調整（サイズ変換・PDF化）：<strong>無料</strong>　／
+      修正対応：<strong>1回まで無料・2回目以降 ¥1,000〜</strong>　／
+      デザイン制作：<strong>別途お見積り</strong>
+    </div>
+    <img src="logo.png" alt="TOYO" class="footer-logo" style="flex-shrink:0">
   </div>
 </div>
 
@@ -762,7 +783,7 @@
   };
 
   const DESIGN_FEE = 6000;
-  const INQUIRY_MAIL = 'ht.1201@toyo-1040.com';
+  const INQUIRY_MAIL = 'it.0612@toyo-1040.com,fa.1103@toyo-1040.com';
   let state = { paper: null, size: null, delivery: null, receive: null };
 
   function selectCard(el, type) {
