@@ -708,6 +708,10 @@
 
     </div>
 
+    <div id="receive-error" style="display:none; margin-top:10px; font-size:0.82rem; color:#dc2626; background:#fff5f5; border-left:3px solid #dc2626; padding:8px 12px; border-radius:6px;">
+      ⚠️ 受け取り方法を選択してください
+    </div>
+
     <!-- 配送の場合の注記 -->
     <div class="ship-note" id="ship-note">
       📦 <strong>配送について</strong><br>
@@ -720,6 +724,7 @@
       <div class="pickup-label">📅 受け取り希望日を入力してください（平日のみ）</div>
       <input type="date" id="pickup-date" class="date-input" onchange="onPickupDateChange(this)">
       <div class="date-note" id="date-note">※ 土日・祝日はお受け取りいただけません。平日のみご対応可能です。</div>
+      <div id="pickup-date-error" style="display:none; font-size:0.82rem; color:#dc2626; margin-top:6px;">⚠️ 受け取り希望日を入力してください</div>
     </div>
 
   </div>
@@ -879,7 +884,10 @@
     document.querySelectorAll(`#${type}-cards .card`).forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     state[type] = el.dataset[type] || el.dataset.size || el.dataset.delivery || el.dataset.receive;
-    if (type === 'receive') onReceiveChange();
+    if (type === 'receive') {
+      onReceiveChange();
+      document.getElementById('receive-error').style.display = 'none';
+    }
     calcTotal();
   }
 
@@ -924,22 +932,55 @@
   function validateForm() {
     const c = getCustomerInfo();
     let ok = true;
+    let firstErrorEl = null;
+
     const mark = (id, valid) => {
-      document.getElementById(id).classList.toggle('error', !valid);
+      const el = document.getElementById(id);
+      el.classList.toggle('error', !valid);
+      if (!valid && !firstErrorEl) firstErrorEl = el;
       if (!valid) ok = false;
     };
+    const showMsg = (id, visible) => {
+      document.getElementById(id).style.display = visible ? 'block' : 'none';
+    };
+
+    // 受け取り方法（STEP7）
+    const receiveOk = !!state.receive;
+    showMsg('receive-error', !receiveOk);
+    if (!receiveOk) {
+      ok = false;
+      if (!firstErrorEl) firstErrorEl = document.getElementById('receive-cards');
+    }
+
+    // 受け取り日（直接の場合）
+    const pickupDate = document.getElementById('pickup-date').value;
+    const pickupOk = state.receive !== 'pickup' || !!pickupDate;
+    showMsg('pickup-date-error', !pickupOk);
+    if (!pickupOk) {
+      document.getElementById('pickup-date').classList.toggle('error', true);
+      ok = false;
+      if (!firstErrorEl) firstErrorEl = document.getElementById('pickup-date');
+    } else {
+      document.getElementById('pickup-date').classList.remove('error');
+    }
+
+    // お客様情報（STEP8）
     mark('c-name', !!c.name);
     mark('c-tel',  !!c.tel);
     const emailOk = !!c.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email);
     mark('c-email', emailOk);
-    document.getElementById('email-error').style.display = (!c.email || emailOk) ? 'none' : 'block';
+    showMsg('email-error', !!c.email && !emailOk);
+
     if (state.receive === 'delivery') {
       mark('c-zip',   !!c.zip);
       mark('c-pref',  !!c.pref);
       mark('c-addr1', !!c.addr1);
     }
-    if (!ok) {
-      document.getElementById('c-name').closest('.step').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    if (!ok && firstErrorEl) {
+      firstErrorEl.closest('.step')
+        ? firstErrorEl.closest('.step').scrollIntoView({ behavior: 'smooth', block: 'start' })
+        : firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return ok;
   }
