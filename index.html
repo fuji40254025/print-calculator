@@ -956,8 +956,8 @@
       '（お名前・ご連絡先・納品先住所などをご記入のうえ送信してください）',
     ].join('\n');
 
-    const mailtoUrl = `mailto:${INQUIRY_MAIL}?subject=${encodeURIComponent('大判印刷 お見積りのご依頼')}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(INQUIRY_MAIL)}&su=${encodeURIComponent('大判印刷 お見積りのご依頼')}&body=${encodeURIComponent(body)}`;
+    window.open(gmailUrl, '_blank');
 
     document.getElementById('modal-confirm').style.display = 'none';
     document.getElementById('modal-success').style.display = '';
