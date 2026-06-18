@@ -263,6 +263,37 @@
   /* フッターロゴ */
   .footer-logo { height: 36px; width: auto; }
 
+  /* お客様情報フォーム */
+  .form-rows { display: flex; flex-direction: column; gap: 16px; }
+  .form-row { display: flex; flex-direction: column; gap: 6px; }
+  .form-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-label { font-size: 0.88rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+  .tag-required { background: #fee2e2; color: #dc2626; font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+  .tag-optional { background: #f1f5f9; color: #94a3b8; font-size: 0.68rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+  .form-input {
+    padding: 11px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    color: #1e293b;
+    width: 100%;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .form-input:focus { border-color: #1e40af; outline: none; background: #fafeff; }
+  .form-input.error { border-color: #dc2626; background: #fff5f5; }
+  .form-textarea { min-height: 80px; resize: vertical; }
+  .form-section-sep {
+    font-size: 0.85rem; font-weight: 700; color: #1e40af;
+    padding: 10px 0 6px;
+    border-bottom: 2px solid #eff6ff;
+    margin-top: 4px;
+  }
+  .error-msg { font-size: 0.78rem; color: #dc2626; margin-top: 4px; display: none; }
+  @media (max-width: 560px) {
+    .form-row-2col { grid-template-columns: 1fr; }
+  }
+
   /* 受け取り方法 */
   .ship-note {
     margin-top: 14px;
@@ -693,6 +724,71 @@
 
   </div>
 
+  <!-- STEP8 お客様情報 -->
+  <div class="step">
+    <div class="step-label">
+      <span class="step-num">STEP 8</span>
+      <span class="step-title">お客様情報を入力してください</span>
+    </div>
+
+    <div class="form-rows">
+
+      <div class="form-row-2col">
+        <div class="form-row">
+          <label class="form-label" for="c-company">会社名・店舗名 <span class="tag-optional">任意</span></label>
+          <input type="text" id="c-company" class="form-input" placeholder="例：東洋商事株式会社 / 居酒屋さくら">
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="c-name">ご担当者名 <span class="tag-required">必須</span></label>
+          <input type="text" id="c-name" class="form-input" placeholder="例：山田 太郎">
+        </div>
+      </div>
+
+      <div class="form-row-2col">
+        <div class="form-row">
+          <label class="form-label" for="c-tel">電話番号 <span class="tag-required">必須</span></label>
+          <input type="tel" id="c-tel" class="form-input" placeholder="例：090-1234-5678">
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="c-email">メールアドレス <span class="tag-required">必須</span></label>
+          <input type="email" id="c-email" class="form-input" placeholder="例：yamada@example.com">
+          <span class="error-msg" id="email-error">正しいメールアドレスを入力してください</span>
+        </div>
+      </div>
+
+      <!-- 配送の場合のみ表示 -->
+      <div id="address-wrap" style="display:none">
+        <div class="form-section-sep">📦 お届け先住所</div>
+        <div class="form-rows" style="margin-top:12px">
+          <div class="form-row-2col">
+            <div class="form-row">
+              <label class="form-label" for="c-zip">郵便番号 <span class="tag-required">必須</span></label>
+              <input type="text" id="c-zip" class="form-input" placeholder="例：530-0001" maxlength="8">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="c-pref">都道府県 <span class="tag-required">必須</span></label>
+              <input type="text" id="c-pref" class="form-input" placeholder="例：大阪府">
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="c-addr1">市区町村・番地 <span class="tag-required">必須</span></label>
+            <input type="text" id="c-addr1" class="form-input" placeholder="例：大阪市北区梅田1-1-1">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="c-addr2">建物名・部屋番号 <span class="tag-optional">任意</span></label>
+            <input type="text" id="c-addr2" class="form-input" placeholder="例：〇〇ビル 3F">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="c-memo">ご要望・備考 <span class="tag-optional">任意</span></label>
+        <textarea id="c-memo" class="form-input form-textarea" placeholder="例：Illustratorデータをお送りします / 色の調整を希望 / 参考デザインあり / ○月○日までに必要 など"></textarea>
+      </div>
+
+    </div>
+  </div>
+
 </div><!-- /container -->
 
 <!-- お問い合わせ確認モーダル -->
@@ -790,12 +886,15 @@
   function onReceiveChange() {
     const shipNote = document.getElementById('ship-note');
     const pickupWrap = document.getElementById('pickup-wrap');
+    const addressWrap = document.getElementById('address-wrap');
     if (state.receive === 'delivery') {
       shipNote.style.display = 'block';
       pickupWrap.style.display = 'none';
+      addressWrap.style.display = 'block';
     } else if (state.receive === 'pickup') {
       shipNote.style.display = 'none';
       pickupWrap.style.display = 'block';
+      addressWrap.style.display = 'none';
       const dateEl = document.getElementById('pickup-date');
       if (!dateEl.min) {
         const tom = new Date(); tom.setDate(tom.getDate() + 1);
@@ -804,7 +903,45 @@
     } else {
       shipNote.style.display = 'none';
       pickupWrap.style.display = 'none';
+      addressWrap.style.display = 'none';
     }
+  }
+
+  function getCustomerInfo() {
+    return {
+      company: document.getElementById('c-company').value.trim(),
+      name:    document.getElementById('c-name').value.trim(),
+      tel:     document.getElementById('c-tel').value.trim(),
+      email:   document.getElementById('c-email').value.trim(),
+      zip:     document.getElementById('c-zip').value.trim(),
+      pref:    document.getElementById('c-pref').value.trim(),
+      addr1:   document.getElementById('c-addr1').value.trim(),
+      addr2:   document.getElementById('c-addr2').value.trim(),
+      memo:    document.getElementById('c-memo').value.trim(),
+    };
+  }
+
+  function validateForm() {
+    const c = getCustomerInfo();
+    let ok = true;
+    const mark = (id, valid) => {
+      document.getElementById(id).classList.toggle('error', !valid);
+      if (!valid) ok = false;
+    };
+    mark('c-name', !!c.name);
+    mark('c-tel',  !!c.tel);
+    const emailOk = !!c.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email);
+    mark('c-email', emailOk);
+    document.getElementById('email-error').style.display = (!c.email || emailOk) ? 'none' : 'block';
+    if (state.receive === 'delivery') {
+      mark('c-zip',   !!c.zip);
+      mark('c-pref',  !!c.pref);
+      mark('c-addr1', !!c.addr1);
+    }
+    if (!ok) {
+      document.getElementById('c-name').closest('.step').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return ok;
   }
 
   function onPickupDateChange(el) {
@@ -893,12 +1030,25 @@
   /* ===== モーダル ===== */
   function openModal() {
     if (!state.paper || !state.size || !state.delivery) return;
+    if (!validateForm()) return;
+
     const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
+    const c = getCustomerInfo();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
     const pickupDate = document.getElementById('pickup-date').value;
+    const address = state.receive === 'delivery'
+      ? `〒${c.zip} ${c.pref}${c.addr1}${c.addr2 ? ' ' + c.addr2 : ''}`
+      : null;
 
     const rows = [
+      ['─── お客様情報 ───', ''],
+      ...(c.company ? [['会社名・店舗名', c.company]] : []),
+      ['ご担当者名', c.name],
+      ['電話番号', c.tel],
+      ['メールアドレス', c.email],
+      ...(address ? [['お届け先', address]] : []),
+      ['─── ご注文内容 ───', ''],
       ['用紙', PAPER_NAMES[state.paper]],
       ['サイズ', state.size],
       ['枚数', `${qty}枚${disc.rate > 0 ? '（' + disc.label + '）' : ''}`],
@@ -909,10 +1059,13 @@
       ...(state.receive === 'pickup' && pickupDate ? [['受け取り希望日', pickupDate]] : []),
       ['印刷費', `¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引込み）' : ''}`],
       ...(design ? [['デザイン費', `¥${designTotal.toLocaleString()}`]] : []),
+      ...(c.memo ? [['備考', c.memo]] : []),
     ];
 
     document.getElementById('modal-rows').innerHTML = rows.map(([k, v]) =>
-      `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val">${v}</span></div>`
+      k.startsWith('───')
+        ? `<div style="font-size:0.78rem;font-weight:700;color:#94a3b8;padding:10px 0 4px;">${k}</div>`
+        : `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val">${v}</span></div>`
     ).join('');
     document.getElementById('modal-total-val').textContent = `¥${total.toLocaleString()}`;
     document.getElementById('modal-confirm').style.display = '';
@@ -932,11 +1085,23 @@
 
   async function sendInquiry() {
     const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
+    const c = getCustomerInfo();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
     const pickupDate = document.getElementById('pickup-date').value;
+    const address = state.receive === 'delivery'
+      ? `〒${c.zip} ${c.pref}${c.addr1}${c.addr2 ? ' ' + c.addr2 : ''}`
+      : null;
 
     const message = [
+      '■ お客様情報',
+      ...(c.company ? [`会社名・店舗名：${c.company}`] : []),
+      `ご担当者名：${c.name}`,
+      `電話番号：${c.tel}`,
+      `メールアドレス：${c.email}`,
+      ...(address ? [`お届け先住所：${address}`] : []),
+      '',
+      '■ ご注文内容',
       `用紙：${PAPER_NAMES[state.paper]}`,
       `サイズ：${state.size}`,
       `枚数：${qty}枚${disc.rate > 0 ? '（' + disc.label + '）' : ''}`,
@@ -946,12 +1111,11 @@
       ...(state.receive ? [`受け取り方法：${receiveLabels[state.receive] || ''}`] : []),
       ...(state.receive === 'pickup' && pickupDate ? [`受け取り希望日：${pickupDate}`] : []),
       '',
+      '■ お見積り金額',
       `印刷費：¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引 −¥' + discountAmt.toLocaleString() + '）' : ''}`,
       ...(design ? [`デザイン費：¥${designTotal.toLocaleString()}`] : []),
       `合計：¥${total.toLocaleString()}（税込）`,
-      '',
-      '------',
-      '（お名前・ご連絡先・納品先住所などをご記入のうえ送信してください）',
+      ...(c.memo ? ['', '■ ご要望・備考', c.memo] : []),
     ].join('\n');
 
     const sendBtn = document.querySelector('.btn-modal-send');
@@ -959,13 +1123,15 @@
     sendBtn.textContent = '送信中...';
 
     try {
+      const c = getCustomerInfo();
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           access_key: '07da2635-e952-475d-b098-29b941e87263',
-          subject: '【大判印刷】お見積りのご依頼',
-          from_name: '大判印刷 見積もりフォーム',
+          subject: `【大判印刷お見積り】${c.company || c.name} 様 / ${state.size} × ${qty}枚`,
+          from_name: c.company ? `${c.company}（${c.name}）` : c.name,
+          reply_to: c.email,
           cc: 'fa.1103@toyo-1040.com',
           message,
           botcheck: false,
