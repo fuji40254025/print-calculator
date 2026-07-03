@@ -68,6 +68,8 @@
     padding: 3px 10px;
     border-radius: 20px;
     letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .step-title { font-size: 1.05rem; font-weight: 700; color: #1e293b; }
 
@@ -323,7 +325,13 @@
   }
   .pickup-label { font-size: 0.88rem; font-weight: 700; color: #15803d; margin-bottom: 10px; }
   .date-input {
+    display: block;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    -webkit-appearance: none;
+    appearance: none;
     padding: 10px 14px;
     border: 2px solid #d1fae5;
     border-radius: 8px;
@@ -851,7 +859,7 @@
       <div class="modal-subtitle">以下の内容でご担当者にお問い合わせを送信します</div>
       <div id="modal-rows"></div>
       <div class="modal-total-row">
-        <span class="modal-total-label">合計金額（税込）</span>
+        <span class="modal-total-label">合計金額（税抜）</span>
         <span class="modal-total-val" id="modal-total-val"></span>
       </div>
       <div class="modal-btn-row">
@@ -922,6 +930,7 @@
   };
 
   const DESIGN_FEE = 6000;
+  const TAX_RATE = 0.10; // 消費税率（税込額は切り捨て）
   const INQUIRY_MAIL = 'it.0612@toyo-1040.com,fa.1103@toyo-1040.com';
   let state = { paper: null, size: null, delivery: null, receive: null };
 
@@ -1156,7 +1165,8 @@
     const discountAmt = Math.round(printBeforeDiscount * disc.rate);
     const printTotal = printBeforeDiscount - discountAmt;
     const total = printTotal + designTotal;
-    return { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total };
+    const taxIncluded = Math.floor(total * (1 + TAX_RATE));
+    return { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxIncluded };
   }
 
   function calcTotal() {
@@ -1171,7 +1181,7 @@
       return;
     }
 
-    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxIncluded } = calcValues();
     const deliveryLabels = { standard: '標準', express: '特急（+30%）', sameday: '当日（+50%）' };
     details.innerHTML = `
       <div class="summary-item">用紙 <span>${PAPER_NAMES[state.paper]}</span></div>
@@ -1183,7 +1193,7 @@
       ${disc.rate > 0 ? `<div class="summary-item">割引 <span style="color:#16a34a">−¥${discountAmt.toLocaleString()}</span></div>` : ''}
       ${design ? `<div class="summary-item">デザイン <span>+¥${designTotal.toLocaleString()}（${designQty}点）</span></div>` : ''}
     `;
-    totalEl.innerHTML = `合計 <small>（税込）</small> ¥${total.toLocaleString()}`;
+    totalEl.innerHTML = `合計 <small>（税抜）</small> ¥${total.toLocaleString()} <small>（税込 ¥${taxIncluded.toLocaleString()}）</small>`;
     btn.style.display = '';
   }
 
@@ -1192,7 +1202,7 @@
     if (!state.paper || !state.size || !state.delivery) return;
     if (!validateForm()) return;
 
-    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxIncluded } = calcValues();
     const c = getCustomerInfo();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
@@ -1227,7 +1237,7 @@
         ? `<div style="font-size:0.78rem;font-weight:700;color:#94a3b8;padding:10px 0 4px;">${k}</div>`
         : `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val">${v}</span></div>`
     ).join('');
-    document.getElementById('modal-total-val').textContent = `¥${total.toLocaleString()}`;
+    document.getElementById('modal-total-val').innerHTML = `¥${total.toLocaleString()} <small style="font-size:0.75rem;font-weight:400;color:#94a3b8;">（税込 ¥${taxIncluded.toLocaleString()}）</small>`;
     document.getElementById('modal-confirm').style.display = '';
     document.getElementById('modal-success').style.display = 'none';
     document.getElementById('modal-overlay').classList.add('open');
@@ -1244,7 +1254,7 @@
   }
 
   async function sendInquiry() {
-    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total } = calcValues();
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxIncluded } = calcValues();
     const c = getCustomerInfo();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
@@ -1274,7 +1284,7 @@
       '■ お見積り金額',
       `印刷費：¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引 −¥' + discountAmt.toLocaleString() + '）' : ''}`,
       ...(design ? [`デザイン費：¥${designTotal.toLocaleString()}`] : []),
-      `合計：¥${total.toLocaleString()}（税込）`,
+      `合計：¥${total.toLocaleString()}（税抜）／ 税込 ¥${taxIncluded.toLocaleString()}`,
       ...(c.memo ? ['', '■ ご要望・備考', c.memo] : []),
     ].join('\n');
 
