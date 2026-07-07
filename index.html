@@ -435,6 +435,137 @@
   .success-icon { font-size: 3.5rem; margin-bottom: 14px; }
   .success-title { font-size: 1.3rem; font-weight: 800; color: #16a34a; margin-bottom: 10px; }
   .success-desc { font-size: 0.85rem; color: #64748b; line-height: 1.7; }
+  .btn-quote-view {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: 2px solid #1e40af;
+    border-radius: 10px;
+    background: white;
+    color: #1e40af;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-quote-view:hover { background: #eff6ff; }
+
+  /* ===== 御見積書 ===== */
+  #quote-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.8);
+    z-index: 400;
+    display: none;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  #quote-overlay.open { display: block; }
+  .quote-toolbar {
+    max-width: 760px;
+    margin: 0 auto 12px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .btn-quote-print, .btn-quote-close {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-quote-print { background: #1e40af; color: white; }
+  .btn-quote-print:hover { background: #1d4ed8; }
+  .btn-quote-close { background: white; color: #64748b; }
+  .quote-hint {
+    max-width: 760px;
+    margin: 10px auto 40px;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .quote-sheet {
+    background: white;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 38px 48px;
+    color: #000;
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif;
+  }
+  .q-issue { text-align: right; font-size: 12px; margin-bottom: 10px; }
+  .q-title {
+    width: 220px;
+    margin: 0 auto 26px;
+    background: #000;
+    color: white;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    padding: 5px 0;
+  }
+  .q-head { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+  .q-customer { font-size: 15px; padding-top: 8px; }
+  .q-customer .q-name {
+    display: inline-block;
+    border-bottom: 1.5px solid #000;
+    padding: 0 24px 4px 4px;
+    min-width: 260px;
+  }
+  .q-greeting { font-size: 12px; margin-top: 24px; line-height: 1.8; }
+  .q-company { font-size: 12px; line-height: 1.7; text-align: left; }
+  .q-company .q-co-name { font-size: 15px; font-weight: 700; }
+  .q-total-box { margin-top: 10px; width: 200px; margin-left: auto; }
+  .q-total-box .q-total-head {
+    background: #000; color: white;
+    text-align: center; font-size: 12px; font-weight: 700;
+    padding: 3px 0;
+  }
+  .q-total-box .q-total-val {
+    border: 1.5px solid #000;
+    text-align: right;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 6px 10px;
+  }
+  .q-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  .q-table th {
+    background: #000; color: white;
+    font-size: 12px; font-weight: 700;
+    padding: 5px 6px;
+    border: 1px solid #000;
+  }
+  .q-table td {
+    border: 1px solid #000;
+    padding: 5px 8px;
+    font-size: 12.5px;
+    height: 26px;
+  }
+  .q-table .q-r { text-align: right; }
+  .q-table .q-c { text-align: center; }
+  .q-table .q-minus { color: #dc2626; }
+  .q-table tfoot td { font-weight: 700; }
+  .q-table tfoot .q-foot-label { text-align: right; border-left: none; border-bottom: 1px solid #000; }
+  .q-notes { margin-top: 14px; font-size: 11px; color: #444; line-height: 1.8; }
+
+  @media print {
+    @page { size: A4 portrait; margin: 12mm; }
+    body.quote-open header,
+    body.quote-open .container,
+    body.quote-open .summary-bar,
+    body.quote-open .modal-overlay { display: none !important; }
+    body.quote-open { padding: 0; background: white; }
+    body.quote-open #quote-overlay { position: static; background: none; padding: 0; overflow: visible; }
+    .quote-toolbar, .quote-hint { display: none !important; }
+    .quote-sheet { max-width: none; padding: 0; }
+  }
+
   @media (max-width: 640px) {
     .cards-3 { grid-template-columns: 1fr; }
     .cards-5 { grid-template-columns: repeat(3, 1fr); }
@@ -849,14 +980,14 @@
 
 </div><!-- /container -->
 
-<!-- お問い合わせ確認モーダル -->
+<!-- お申込み確認モーダル -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalIfBg(event)">
   <div class="modal-box" id="modal-box">
 
     <!-- 確認画面 -->
     <div id="modal-confirm">
-      <div class="modal-title">📋 お見積り内容の確認</div>
-      <div class="modal-subtitle">以下の内容でご担当者にお問い合わせを送信します</div>
+      <div class="modal-title">📋 お申込み内容の確認</div>
+      <div class="modal-subtitle">以下の内容でお申込みを送信します</div>
       <div id="modal-rows"></div>
       <div class="modal-total-row">
         <span class="modal-total-label">合計金額（税抜）</span>
@@ -864,7 +995,7 @@
       </div>
       <div class="modal-btn-row">
         <button class="btn-modal-cancel" onclick="closeModal()">← 戻る</button>
-        <button class="btn-modal-send" onclick="sendInquiry()">✉️ この内容で送信する</button>
+        <button class="btn-modal-send" onclick="sendInquiry()">✉️ この内容で申し込む</button>
       </div>
     </div>
 
@@ -872,16 +1003,30 @@
     <div id="modal-success" style="display:none">
       <div class="success-wrap">
         <div class="success-icon">✅</div>
-        <div class="success-title">送信準備が完了しました！</div>
+        <div class="success-title">お申込みが完了しました！</div>
         <div class="success-desc">
-          担当者にお見積り内容を送信しました。<br>
+          担当者にお申込み内容を送信しました。<br>
           折り返しご連絡いたします。<br><br>
           <span style="color:#94a3b8; font-size:0.78rem">※ ご不明な点は<br>it.0612@toyo-1040.com までご連絡ください</span>
         </div>
-        <button class="btn-modal-send" style="margin-top:20px; width:100%" onclick="closeModal()">閉じる</button>
+        <button class="btn-quote-view" onclick="openQuote()">📄 御見積書を確認・保存する</button>
+        <button class="btn-modal-send" style="margin-top:12px; width:100%" onclick="closeModal()">閉じる</button>
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- 御見積書オーバーレイ -->
+<div id="quote-overlay">
+  <div class="quote-toolbar">
+    <button class="btn-quote-print" onclick="window.print()">🖨 印刷・PDF保存</button>
+    <button class="btn-quote-close" onclick="closeQuote()">✕ 閉じる</button>
+  </div>
+  <div class="quote-sheet" id="quote-sheet"></div>
+  <div class="quote-hint">
+    「印刷・PDF保存」ボタンから、プリンターでの印刷またはPDFとしての保存ができます。<br>
+    スマートフォンの場合は、印刷画面の共有メニューやオプションから「PDFとして保存」を選択してください。
   </div>
 </div>
 
@@ -893,7 +1038,7 @@
     </div>
     <div class="summary-total" id="summary-total"></div>
     <button class="btn-inquiry" id="inquiry-btn" onclick="openModal()" style="display:none">
-      ✉️ お問い合わせ
+      ✉️ お申込み
     </button>
   </div>
   <div class="summary-notes" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
@@ -1299,7 +1444,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           access_key: '07da2635-e952-475d-b098-29b941e87263',
-          subject: `【大判印刷お見積り】${c.company} ${c.name} 様 / ${state.size} × ${qty}枚`,
+          subject: `【大判印刷お申込み】${c.company} ${c.name} 様 / ${state.size} × ${qty}枚`,
           from_name: `${c.company}（${c.name}）`,
           reply_to: c.email,
           cc: 'fa.1103@toyo-1040.com',
@@ -1316,9 +1461,121 @@
       }
     } catch (e) {
       sendBtn.disabled = false;
-      sendBtn.textContent = '✉️ この内容で送信する';
+      sendBtn.textContent = '✉️ この内容で申し込む';
       alert('送信に失敗しました。時間をおいて再度お試しください。\n' + e.message);
     }
+  }
+
+  /* ===== 御見積書 ===== */
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function warekiLong(d) {
+    return `令和${d.getFullYear() - 2018}年${d.getMonth() + 1}月${d.getDate()}日`;
+  }
+  function warekiShort(dateStr) { // 'YYYY-MM-DD' → 'R8.07.10'
+    const [y, m, dd] = dateStr.split('-').map(Number);
+    return `R${y - 2018}.${String(m).padStart(2, '0')}.${String(dd).padStart(2, '0')}`;
+  }
+
+  function openQuote() {
+    const v = calcValues();
+    const c = getCustomerInfo();
+    const ex = n => Math.round(n / (1 + TAX_RATE)); // 税込→税抜（四捨五入）
+    const yen = n => n.toLocaleString();
+
+    const pickupDate = document.getElementById('pickup-date').value;
+    const lineDate = (state.receive === 'pickup' && pickupDate) ? warekiShort(pickupDate) : '';
+    const deliverySuffix = state.delivery === 'express' ? '（特急対応）'
+                         : state.delivery === 'sameday' ? '（当日対応）' : '';
+
+    // 明細行（すべて税抜）
+    const rows = [];
+    const unitEx = ex(v.unitPrice);
+    rows.push({ d: lineDate, name: `${state.size}ポスター印刷費用${deliverySuffix}`, unit: unitEx, qty: v.qty, amt: unitEx * v.qty });
+    if (v.lami) {
+      const lamiEx = ex(v.lamiPrice);
+      rows.push({ d: lineDate, name: 'ラミネート加工（グロス）', unit: lamiEx, qty: v.qty, amt: lamiEx * v.qty });
+    }
+    if (v.discountAmt > 0) {
+      rows.push({ d: lineDate, name: `枚数割引適用（${v.disc.label}）`, unit: null, qty: null, amt: -Math.floor(v.discountAmt / (1 + TAX_RATE)) });
+    }
+    if (v.design) {
+      const designEx = ex(DESIGN_FEE);
+      rows.push({ d: '', name: '簡易デザイン制作費', unit: designEx, qty: v.designQty, amt: designEx * v.designQty });
+    }
+
+    const subtotal = rows.reduce((s, r) => s + r.amt, 0);
+    const tax = v.total - subtotal; // 税込合計との差額＝消費税額（端数吸収）
+
+    const bodyRows = rows.map(r => `
+      <tr>
+        <td class="q-c">${r.d}</td>
+        <td>${escHtml(r.name)}</td>
+        <td class="q-r">${r.unit !== null ? yen(r.unit) : ''}</td>
+        <td class="q-c">${r.qty !== null ? r.qty : ''}</td>
+        <td class="q-r${r.amt < 0 ? ' q-minus' : ''}">${r.amt < 0 ? '−' + yen(-r.amt) : yen(r.amt)}</td>
+      </tr>`).join('');
+    const emptyRows = Array.from({ length: Math.max(0, 10 - rows.length) }, () =>
+      '<tr><td></td><td></td><td></td><td></td><td></td></tr>').join('');
+
+    const notes = [
+      '※ 本見積書は見積り計算機による自動発行です。正式な金額・納期は担当者からのご連絡にてご確認ください。',
+      ...(state.receive === 'delivery' ? ['※ 配送料は実費を別途申し受けます。'] : []),
+    ].map(escHtml).join('<br>');
+
+    document.getElementById('quote-sheet').innerHTML = `
+      <div class="q-issue">発行日 ：　${warekiLong(new Date())}</div>
+      <div class="q-title">御見積書</div>
+      <div class="q-head">
+        <div>
+          <div class="q-customer"><span class="q-name">${escHtml(c.company)}　御中</span></div>
+          <div class="q-greeting">毎度お引き立て頂きありがとうございます。<br>下記の通り、お見積り申し上げます。</div>
+        </div>
+        <div>
+          <div class="q-company">
+            <div class="q-co-name">東洋商事 株式会社</div>
+            T2240001007365<br><br>
+            〒730-0856<br>
+            広島市中区河原町13番14号2Ｆ<br>
+            TEL : 082 (234) 1040　FAX : 082 (234) 6660<br><br>
+            振込先 : 広島銀行　海田支店<br>
+            　　　　 普通預金　No.3512352<br>
+            <span style="font-size:10.5px">＊お振込手数料はお客様にてご負担をお願いいたします。</span>
+          </div>
+          <div class="q-total-box">
+            <div class="q-total-head">御請求額</div>
+            <div class="q-total-val">${yen(v.total)}</div>
+          </div>
+        </div>
+      </div>
+      <table class="q-table">
+        <thead>
+          <tr>
+            <th style="width:14%">年 月 日</th>
+            <th style="width:40%">品　　名</th>
+            <th style="width:15%">単価</th>
+            <th style="width:11%">数量</th>
+            <th style="width:20%">金額（税抜き）</th>
+          </tr>
+        </thead>
+        <tbody>${bodyRows}${emptyRows}</tbody>
+        <tfoot>
+          <tr><td colspan="4" class="q-foot-label" style="border:none; border-bottom:1px solid #000; text-align:right">10％税抜小計</td><td class="q-r">${yen(subtotal)}</td></tr>
+          <tr><td colspan="4" style="border:none; border-bottom:1px solid #000; text-align:right">10％消費税額</td><td class="q-r">${yen(tax)}</td></tr>
+          <tr><td colspan="4" style="border:none; border-bottom:1px solid #000; text-align:right">合計</td><td class="q-r">${yen(v.total)}</td></tr>
+        </tfoot>
+      </table>
+      <div class="q-notes">${notes}</div>
+    `;
+
+    document.getElementById('quote-overlay').classList.add('open');
+    document.body.classList.add('quote-open');
+  }
+
+  function closeQuote() {
+    document.getElementById('quote-overlay').classList.remove('open');
+    document.body.classList.remove('quote-open');
   }
 </script>
 </body>
