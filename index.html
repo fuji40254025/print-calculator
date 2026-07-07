@@ -1539,7 +1539,7 @@
         <td class="q-c">${r.qty !== null ? r.qty : ''}</td>
         <td class="q-r${r.amt < 0 ? ' q-minus' : ''}">${r.amt < 0 ? '−' + yen(-r.amt) : yen(r.amt)}</td>
       </tr>`).join('');
-    const emptyRows = Array.from({ length: Math.max(0, 11 - rows.length) }, () =>
+    const emptyRows = Array.from({ length: Math.max(0, 13 - rows.length) }, () =>
       '<tr><td></td><td></td><td></td><td></td><td></td></tr>').join('');
 
     const notes = [
@@ -1561,10 +1561,7 @@
             T2240001007365<br><br>
             〒730-0856<br>
             広島市中区河原町13番14号2Ｆ<br>
-            TEL : 082 (234) 1040　FAX : 082 (234) 6660<br><br>
-            振込先 : 広島銀行　海田支店<br>
-            　　　　 普通預金　No.3512352<br>
-            <span style="font-size:10.5px">＊お振込手数料はお客様にてご負担をお願いいたします。</span>
+            TEL : 082 (234) 1040　FAX : 082 (234) 6660
           </div>
           <div class="q-total-box">
             <div class="q-total-head">御請求額</div>
