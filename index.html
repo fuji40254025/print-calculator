@@ -607,6 +607,30 @@
     .cards-5 { grid-template-columns: repeat(2, 1fr); }
     .cards-7 { grid-template-columns: repeat(3, 1fr); }
   }
+
+  /* ===== 配送料計算 ===== */
+  .ship-calc { margin-top: 14px; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; }
+  .ship-calc-title { font-size: 0.9rem; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+  .ship-field { margin-bottom: 12px; }
+  .ship-field > label { display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 5px; }
+  .ship-field select, .ship-field input {
+    width: 100%; max-width: 100%; box-sizing: border-box; padding: 10px 12px; min-height: 44px;
+    border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: #fff; color: #1e293b;
+    -webkit-appearance: none; appearance: none;
+  }
+  .ship-field select { background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+  .ship-field select:focus, .ship-field input:focus { outline: none; border-color: #1e40af; }
+  .ship-hint { font-size: 0.72rem; color: #64748b; line-height: 1.5; margin-top: 5px; }
+  .ship-row { display: flex; gap: 10px; }
+  .ship-row .ship-field { flex: 1; min-width: 0; }
+  .ship-result { margin-top: 12px; padding: 12px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; }
+  .ship-result.weekend { background: #fefce8; border-color: #fde047; }
+  .ship-result-carrier { font-size: 0.78rem; font-weight: 700; color: #1e40af; }
+  .ship-result.weekend .ship-result-carrier { color: #a16207; }
+  .ship-result-amt { font-size: 1.15rem; font-weight: 800; color: #1e293b; margin-top: 3px; }
+  .ship-result-note { font-size: 0.72rem; color: #64748b; line-height: 1.5; margin-top: 5px; }
+  .ship-error { font-size: 0.8rem; color: #dc2626; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -787,7 +811,7 @@
           <path d="M20 10 L20 30" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
         <div class="card-name">特急（1〜2営業日）</div>
-        <div class="card-desc">標準価格の30%増しになります。急ぎの場合はこちら。</div>
+        <div class="card-desc">標準価格の50%増しになります。急ぎの場合はこちら。</div>
       </div>
 
       <div class="card" data-delivery="sameday" onclick="selectCard(this,'delivery')">
@@ -798,7 +822,7 @@
           <path d="M20 10 L28 12" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <div class="card-name" style="color:#dc2626">当日対応</div>
-        <div class="card-desc">標準価格の50%増しになります。当日仕上げが必要な場合。</div>
+        <div class="card-desc">標準価格の100%増しになります。当日仕上げが必要な場合。</div>
       </div>
 
     </div>
@@ -842,7 +866,7 @@
       <div class="toggle-info">
         <div class="toggle-name">
           簡易デザイン制作
-          <span class="lami-badge">¥6,000 / 点</span>
+          <span class="lami-badge">¥6,000 / 点（税抜）</span>
         </div>
         <div class="toggle-desc">
           ロゴ・写真・テキストをお預かりして配置・調整します。<br>
@@ -896,7 +920,7 @@
           <circle cx="29" cy="30" r="3" fill="#1e40af"/>
         </svg>
         <div class="card-name">配送（送料お客様負担）</div>
-        <div class="card-desc">ご指定の住所へ発送します。送料は実費でご負担ください。</div>
+        <div class="card-desc">ご指定の住所へ発送します。お届け先・梱包サイズ・口数・発送日から送料を自動計算します。</div>
       </div>
 
     </div>
@@ -905,11 +929,45 @@
       ⚠️ 受け取り方法を選択してください
     </div>
 
-    <!-- 配送の場合の注記 -->
+    <!-- 配送の場合：送料計算 -->
     <div class="ship-note" id="ship-note">
       📦 <strong>配送について</strong><br>
-      梱包・発送はこちらで行います。送料は実費（サイズ・重量・送り先による）となり、請求書にてご案内します。<br>
-      ※ ヤマト運輸・佐川急便にて発送予定です。
+      梱包・発送はこちらで行います。下記をご入力いただくと送料が自動で計算されます。<br>
+      ※ 平日発送は<strong>ゆうパック</strong>、土日発送は<strong>ヤマト運輸</strong>での発送となります。
+
+      <div class="ship-calc">
+        <div class="ship-calc-title">🚚 送料の計算</div>
+
+        <div class="ship-field">
+          <label for="ship-pref">お届け先の都道府県</label>
+          <select id="ship-pref" onchange="onShipPrefChange()"><option value="">選択してください</option></select>
+          <div id="ship-pref-error" class="ship-error" style="display:none">⚠️ お届け先の都道府県を選択してください</div>
+        </div>
+
+        <div class="ship-field">
+          <label for="ship-size">梱包サイズ（3辺の合計）</label>
+          <select id="ship-size" onchange="onShipSizeChange()"></select>
+          <div class="ship-hint" id="ship-size-hint"></div>
+        </div>
+
+        <div class="ship-row">
+          <div class="ship-field">
+            <label for="ship-units">口数（何個口で送るか）</label>
+            <input type="number" id="ship-units" value="1" min="1" max="99" inputmode="numeric" onchange="calcTotal()" oninput="calcTotal()">
+          </div>
+          <div class="ship-field">
+            <label for="ship-date">発送日</label>
+            <input type="date" id="ship-date" onchange="calcTotal()">
+          </div>
+        </div>
+        <div id="ship-date-error" class="ship-error" style="display:none">⚠️ 発送日を入力してください</div>
+
+        <div class="ship-result" id="ship-result" style="display:none">
+          <div class="ship-result-carrier" id="ship-result-carrier"></div>
+          <div class="ship-result-amt" id="ship-result-amt"></div>
+          <div class="ship-result-note" id="ship-result-note"></div>
+        </div>
+      </div>
     </div>
 
     <!-- 取りに来る場合の日付指定 -->
@@ -1081,17 +1139,191 @@
 </div>
 
 <script>
-  const PRICES = {
-    photo:   { A4: 500,  A3: 800,  A2: 1400, B2: 1650, A1: 1900, B1: 2350, A0: 2800 },
-    water:   { A4: 600,  A3: 1000, A2: 1600, B2: 2000, A1: 2400, B1: 3000, A0: 3600 },
-    sticker: { A4: 800,  A3: 1300, A2: 2000, B2: 2450, A1: 2900, B1: 3700, A0: 4500 },
+  /* ===== 配送料 =====
+     平日＝ゆうパック（広島発・基本運賃・税込）
+       出典 https://www.post.japanpost.jp/service/domestic/charge/list/yu-pack/34.html
+     土日＝ヤマト宅急便（中国発・現金決済・税込／2025年10月1日から運用）
+       出典 https://www.yamato-hd.co.jp/important/pdf/info_250501_1.pdf
+     ゆうパックとヤマトはあて先の区分の切り方が違うため、都道府県ごとに両社のエリアを持つ。
+     ゆうパックは発地と着地を入れ替えても同額（対称）なので広島発の表だけで足りる。      */
+  const SHIP_SIZES = [60, 80, 100, 120, 140, 160, 170];
+
+  // ゆうパック（広島発）：あて先グループ別・税込
+  const YUPACK = {
+    hiroshima:      [ 820, 1130, 1450, 1770, 2120, 2450, 3000],
+    kinki_shikoku:  [ 880, 1200, 1500, 1830, 2170, 2500, 3070],
+    hokuriku_tokai: [ 990, 1310, 1620, 1940, 2300, 2610, 3750],
+    kanto_shinetsu: [1150, 1440, 1780, 2080, 2440, 2750, 3890],
+    okinawa:        [1340, 1690, 2030, 2370, 2730, 3060, 4200],
+    tohoku:         [1410, 1710, 2020, 2340, 2680, 3010, 4140],
+    hokkaido:       [1740, 2040, 2350, 2650, 3010, 3330, 5030],
   };
-  const LAMI = { A4: 200, A3: 300, A2: 400, B2: 350, A1: 600, B1: 650, A0: 900 };
+  // ヤマト宅急便（中国発）：あて先地帯別・税込。170サイズ区分が無いため末尾は180サイズ運賃
+  const YAMATO = {
+    hokkaido:     [2070, 2360, 2670, 3280, 3990, 4370, 7410],
+    kitatohoku:   [1460, 1740, 2050, 2610, 3250, 3630, 5220],
+    minamitohoku: [1460, 1740, 2050, 2610, 3250, 3630, 5220],
+    kanto:        [1190, 1480, 1790, 2310, 2930, 3320, 4900],
+    shinetsu:     [1190, 1480, 1790, 2310, 2930, 3320, 4900],
+    hokuriku:     [1060, 1350, 1650, 2170, 2780, 3160, 4480],
+    chubu:        [1060, 1350, 1650, 2170, 2780, 3160, 4480],
+    kansai:       [ 940, 1230, 1530, 2040, 2630, 3020, 3680],
+    chugoku:      [ 940, 1230, 1530, 2040, 2630, 3020, 3680],
+    shikoku:      [ 940, 1230, 1530, 2040, 2630, 3020, 3680],
+    kyushu:       [ 940, 1230, 1530, 2040, 2630, 3020, 3680],
+    okinawa:      [1460, 2070, 2710, 3360, 4030, 4680, 7210],
+  };
+  // 都道府県 → [ゆうパックのグループ, ヤマトの地帯]
+  const PREFS = [
+    ['北海道','hokkaido','hokkaido'],
+    ['青森県','tohoku','kitatohoku'],['岩手県','tohoku','kitatohoku'],['秋田県','tohoku','kitatohoku'],
+    ['宮城県','tohoku','minamitohoku'],['山形県','tohoku','minamitohoku'],['福島県','tohoku','minamitohoku'],
+    ['茨城県','kanto_shinetsu','kanto'],['栃木県','kanto_shinetsu','kanto'],['群馬県','kanto_shinetsu','kanto'],
+    ['埼玉県','kanto_shinetsu','kanto'],['千葉県','kanto_shinetsu','kanto'],['東京都','kanto_shinetsu','kanto'],
+    ['神奈川県','kanto_shinetsu','kanto'],['山梨県','kanto_shinetsu','kanto'],
+    ['新潟県','kanto_shinetsu','shinetsu'],['長野県','kanto_shinetsu','shinetsu'],
+    ['富山県','hokuriku_tokai','hokuriku'],['石川県','hokuriku_tokai','hokuriku'],['福井県','hokuriku_tokai','hokuriku'],
+    ['静岡県','hokuriku_tokai','chubu'],['愛知県','hokuriku_tokai','chubu'],['岐阜県','hokuriku_tokai','chubu'],['三重県','hokuriku_tokai','chubu'],
+    ['滋賀県','kinki_shikoku','kansai'],['京都府','kinki_shikoku','kansai'],['大阪府','kinki_shikoku','kansai'],
+    ['兵庫県','kinki_shikoku','kansai'],['奈良県','kinki_shikoku','kansai'],['和歌山県','kinki_shikoku','kansai'],
+    ['鳥取県','kinki_shikoku','chugoku'],['島根県','kinki_shikoku','chugoku'],['岡山県','kinki_shikoku','chugoku'],
+    ['広島県','hiroshima','chugoku'],['山口県','kinki_shikoku','chugoku'],
+    ['徳島県','kinki_shikoku','shikoku'],['香川県','kinki_shikoku','shikoku'],['愛媛県','kinki_shikoku','shikoku'],['高知県','kinki_shikoku','shikoku'],
+    ['福岡県','kinki_shikoku','kyushu'],['佐賀県','kinki_shikoku','kyushu'],['長崎県','kinki_shikoku','kyushu'],
+    ['熊本県','kinki_shikoku','kyushu'],['大分県','kinki_shikoku','kyushu'],['宮崎県','kinki_shikoku','kyushu'],['鹿児島県','kinki_shikoku','kyushu'],
+    ['沖縄県','okinawa','okinawa'],
+  ];
+  // ポスターサイズ → 推奨の梱包サイズ（紙管に丸めた場合）
+  const SHIP_REC = { A4: 60, A3: 60, A2: 60, B2: 80, A1: 80, B1: 100, A0: 120 };
+  const SHIP_HINT = {
+    60:  'A4・A3・A2ポスターの標準。A2は紙管に丸めて約60cm（3辺合計60cm以内）',
+    80:  'A1・B2ポスターの標準。紙管に丸めた状態で約70〜77cm（3辺合計80cm以内）',
+    100: 'B1ポスターの標準。A1を複数本まとめて太くなる場合もこちら（3辺合計100cm以内）',
+    120: 'A0ポスターの標準。紙管に丸めた状態で約105cm（3辺合計120cm以内）',
+    140: 'A0を複数本、または太い紙管を使う場合（3辺合計140cm以内）',
+    160: '特大・長尺の梱包（3辺合計160cm以内）',
+    170: 'ゆうパックの上限（3辺合計170cm以内）。土日はヤマトに170サイズ区分が無く180サイズ扱いとなり大幅に高くなります',
+  };
+
+  function initShipUI() {
+    const pref = document.getElementById('ship-pref');
+    PREFS.forEach(p => {
+      const o = document.createElement('option');
+      o.value = p[0]; o.textContent = p[0];
+      pref.appendChild(o);
+    });
+    const sz = document.getElementById('ship-size');
+    SHIP_SIZES.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s + 'サイズ（3辺合計 ' + s + 'cm以内）';
+      sz.appendChild(o);
+    });
+    const d = document.getElementById('ship-date');
+    const tom = new Date(); tom.setDate(tom.getDate() + 1);
+    d.min = tom.toISOString().split('T')[0];
+    syncShipSize();
+    onShipSizeChange();
+  }
+
+  /* ポスターサイズを選び直したら梱包サイズの推奨値に合わせる（手動変更は尊重する） */
+  let shipSizeTouched = false;
+  function syncShipSize() {
+    const sz = document.getElementById('ship-size');
+    if (!sz) return;
+    if (shipSizeTouched) return;
+    sz.value = SHIP_REC[state.size] || 80;
+    updateShipHint();
+  }
+  function onShipSizeChange() {
+    shipSizeTouched = true;
+    updateShipHint();
+    calcTotal();
+  }
+  function updateShipHint() {
+    const sz = document.getElementById('ship-size');
+    const hint = document.getElementById('ship-size-hint');
+    if (!sz || !hint) return;
+    const s = parseInt(sz.value) || 80;
+    const rec = SHIP_REC[state.size];
+    const recTxt = rec ? `${state.size}ポスターは通常「${rec}サイズ」です。` : '';
+    hint.textContent = recTxt + (SHIP_HINT[s] || '');
+  }
+
+  /* STEP7の配送先とSTEP8のお届け先住所を食い違わせない（双方向で同期する） */
+  function onShipPrefChange() {
+    const v = document.getElementById('ship-pref').value;
+    const cp = document.getElementById('c-pref');
+    if (v && cp && cp.value !== v) {
+      cp.value = v;
+      cp.classList.remove('error');
+      const err = document.getElementById('pref-error');
+      if (err) err.style.display = 'none';
+    }
+    document.getElementById('ship-pref-error').style.display = 'none';
+    calcTotal();
+  }
+  function syncShipPrefFromAddress(prefName) {
+    const sel = document.getElementById('ship-pref');
+    if (!sel || !prefName) return;
+    if (PREFS.some(p => p[0] === prefName)) {
+      sel.value = prefName;
+      document.getElementById('ship-pref-error').style.display = 'none';
+      calcTotal();
+    }
+  }
+
+  /* 発送日が土日ならヤマト、平日ならゆうパック */
+  function shippingInfo() {
+    if (state.receive !== 'delivery') return null;
+    const prefEl = document.getElementById('ship-pref');
+    const sizeEl = document.getElementById('ship-size');
+    const unitsEl = document.getElementById('ship-units');
+    const dateEl = document.getElementById('ship-date');
+    if (!prefEl || !sizeEl || !unitsEl || !dateEl) return null;
+    const prefName = prefEl.value;
+    const size = parseInt(sizeEl.value) || 0;
+    const units = Math.min(99, Math.max(1, parseInt(unitsEl.value) || 1));
+    const dateStr = dateEl.value;
+    if (!prefName || !size || !dateStr) return { ready: false, units, size, dateStr, prefName };
+    const p = PREFS.find(x => x[0] === prefName);
+    const si = SHIP_SIZES.indexOf(size);
+    if (!p || si < 0) return { ready: false, units, size, dateStr, prefName };
+    const w = new Date(dateStr + 'T00:00:00').getDay();
+    const weekend = (w === 0 || w === 6);
+    const carrier = weekend ? 'ヤマト運輸（宅急便）' : 'ゆうパック（日本郵便）';
+    const unitIncl = weekend ? YAMATO[p[2]][si] : YUPACK[p[1]][si];
+    const unitEx = Math.round(unitIncl / (1 + TAX_RATE));
+    const oversize = weekend && size === 170;
+    return { ready: true, weekend, carrier, prefName, size, units, unitIncl, unitEx,
+             exTotal: unitEx * units, inclTotal: Math.round(unitEx * units * (1 + TAX_RATE)), dateStr, oversize };
+  }
+
+  function renderShipResult(ship) {
+    const box = document.getElementById('ship-result');
+    if (!box) return;
+    if (!ship || !ship.ready) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    box.classList.toggle('weekend', ship.weekend);
+    document.getElementById('ship-result-carrier').textContent =
+      (ship.weekend ? '🟡 土日発送のため ' : '📮 平日発送のため ') + ship.carrier;
+    document.getElementById('ship-result-amt').innerHTML =
+      `送料 ¥${ship.exTotal.toLocaleString()} <small style="font-size:0.72rem;font-weight:400;color:#64748b">（税込 ¥${ship.inclTotal.toLocaleString()}）</small>`;
+    document.getElementById('ship-result-note').textContent =
+      `${ship.prefName}あて ／ ${ship.size}サイズ × ${ship.units}口（1口あたり税込¥${ship.unitIncl.toLocaleString()}）`
+      + (ship.oversize ? ' ※ヤマトは170サイズ区分が無いため180サイズ運賃です。平日発送のゆうパックなら大幅に安くなります。' : '');
+  }
+
+  const PRICES = {
+    photo:   { A4: 600,  A3: 1000, A2: 1800, B2: 2200, A1: 2600, B1: 3300, A0: 4000 },
+    water:   { A4: 750,  A3: 1200, A2: 2200, B2: 2700, A1: 3200, B1: 4100, A0: 4900 },
+    sticker: { A4: 1000, A3: 1700, A2: 2900, B2: 3600, A1: 4200, B1: 5400, A0: 6500 },
+  };
+  const LAMI = { A4: 240, A3: 360, A2: 480, B2: 420, A1: 720, B1: 780, A0: 1080 };
   const DISCOUNT = [
-    { min: 50, rate: 0.20, label: '50枚〜 20%OFF' },
-    { min: 30, rate: 0.15, label: '30〜49枚 15%OFF' },
-    { min: 10, rate: 0.10, label: '10〜29枚 10%OFF' },
-    { min: 2,  rate: 0.05, label: '2〜9枚 5%OFF' },
+    { min: 50, rate: 0.15, label: '50枚〜 15%OFF' },
+    { min: 30, rate: 0.10, label: '30〜49枚 10%OFF' },
+    { min: 10, rate: 0.05, label: '10〜29枚 5%OFF' },
+    { min: 2,  rate: 0,    label: '' },
     { min: 1,  rate: 0,    label: '' },
   ];
   function getDiscount(qty) {
@@ -1104,7 +1336,7 @@
   };
 
   const DESIGN_FEE = 6000;
-  const TAX_RATE = 0.10; // 消費税率（PRICESは税込価格。税抜額は税込÷1.1を四捨五入）
+  const TAX_RATE = 0.10; // 消費税率（PRICES・LAMI・DESIGN_FEEはすべて税抜価格。税込は税抜×1.1を四捨五入）
   const INQUIRY_MAIL = 'it.0612@toyo-1040.com,fa.1103@toyo-1040.com';
   let state = { paper: null, size: null, delivery: null, receive: null };
 
@@ -1116,8 +1348,11 @@
       onReceiveChange();
       document.getElementById('receive-error').style.display = 'none';
     }
+    if (type === 'size') syncShipSize();
     calcTotal();
   }
+
+  document.addEventListener('DOMContentLoaded', initShipUI);
 
   function onReceiveChange() {
     const shipNote = document.getElementById('ship-note');
@@ -1194,6 +1429,7 @@
       if (data.results) {
         const r = data.results[0];
         document.getElementById('c-pref').value  = r.address1;
+        syncShipPrefFromAddress(r.address1);
         document.getElementById('c-addr1').value = r.address2 + r.address3;
         ['c-pref','c-addr1','c-zip'].forEach(id => {
           document.getElementById(id).classList.remove('error');
@@ -1264,6 +1500,16 @@
       if (!firstErrorEl) firstErrorEl = document.getElementById('pickup-date');
     }
 
+    // 配送先・発送日（配送の場合）
+    const shipPrefEl = document.getElementById('ship-pref');
+    const shipDateEl = document.getElementById('ship-date');
+    const shipPrefOk = state.receive !== 'delivery' || !!(shipPrefEl && shipPrefEl.value);
+    const shipDateOk = state.receive !== 'delivery' || !!(shipDateEl && shipDateEl.value);
+    showMsg('ship-pref-error', !shipPrefOk);
+    showMsg('ship-date-error', !shipDateOk);
+    if (!shipPrefOk) { ok = false; if (!firstErrorEl) firstErrorEl = shipPrefEl; }
+    if (!shipDateOk) { ok = false; if (!firstErrorEl) firstErrorEl = shipDateEl; }
+
     // STEP8 お客様情報
     mark('c-company', 'company-error', !!c.company);
     mark('c-name',    'name-error',    !!c.name);
@@ -1332,15 +1578,17 @@
     let unitPrice = PRICES[state.paper][state.size];
     const lamiPrice = lami ? LAMI[state.size] : 0;
     const designTotal = design ? DESIGN_FEE * designQty : 0;
-    if (state.delivery === 'express') unitPrice = Math.ceil(unitPrice * 1.3 / 10) * 10;
-    else if (state.delivery === 'sameday') unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
+    if (state.delivery === 'express') unitPrice = Math.ceil(unitPrice * 1.5 / 10) * 10;
+    else if (state.delivery === 'sameday') unitPrice = Math.ceil(unitPrice * 2.0 / 10) * 10;
     const disc = getDiscount(qty);
     const printBeforeDiscount = (unitPrice + lamiPrice) * qty;
     const discountAmt = Math.round(printBeforeDiscount * disc.rate);
     const printTotal = printBeforeDiscount - discountAmt;
-    const total = printTotal + designTotal; // 税込合計
-    const taxExcluded = Math.round(total / (1 + TAX_RATE));
-    return { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded };
+    const ship = shippingInfo();
+    const shipEx = (ship && ship.ready) ? ship.exTotal : 0;
+    const taxExcluded = printTotal + designTotal + shipEx; // 税抜合計（送料込み）
+    const total = Math.round(taxExcluded * (1 + TAX_RATE)); // 税込合計
+    return { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded, ship, shipEx };
   }
 
   function calcTotal() {
@@ -1357,8 +1605,9 @@
     }
     document.querySelector('.summary-bar').classList.add('filled');
 
-    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded } = calcValues();
-    const deliveryLabels = { standard: '標準', express: '特急（+30%）', sameday: '当日（+50%）' };
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded, ship } = calcValues();
+    renderShipResult(ship);
+    const deliveryLabels = { standard: '標準', express: '特急（+50%）', sameday: '当日（+100%）' };
     details.innerHTML = `
       <div class="summary-item">用紙 <span>${PAPER_NAMES[state.paper]}</span></div>
       <div class="summary-item">サイズ <span>${state.size}</span></div>
@@ -1368,6 +1617,7 @@
       ${lami ? `<div class="summary-item">ラミネート <span>+¥${(lamiPrice * qty).toLocaleString()}</span></div>` : ''}
       ${disc.rate > 0 ? `<div class="summary-item">割引 <span style="color:#16a34a">−¥${discountAmt.toLocaleString()}</span></div>` : ''}
       ${design ? `<div class="summary-item">デザイン <span>+¥${designTotal.toLocaleString()}（${designQty}点）</span></div>` : ''}
+      ${ship && ship.ready ? `<div class="summary-item">送料 <span>+¥${ship.exTotal.toLocaleString()}（${ship.weekend ? 'ヤマト' : 'ゆうパック'}・${ship.size}サイズ×${ship.units}口）</span></div>` : ''}
     `;
     totalEl.innerHTML = `合計 <small>（税抜）</small> ¥${taxExcluded.toLocaleString()} <small>（税込 ¥${total.toLocaleString()}）</small>`;
     btn.style.display = '';
@@ -1378,7 +1628,7 @@
     if (!state.paper || !state.size || !state.delivery) return;
     if (!validateForm()) return;
 
-    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded } = calcValues();
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded, ship } = calcValues();
     const c = getCustomerInfo();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
@@ -1403,6 +1653,12 @@
       ['デザイン制作', design ? `あり（${designQty}点）` : 'なし（データ持込）'],
       ...(state.receive ? [['受け取り方法', receiveLabels[state.receive] || '']] : []),
       ...(state.receive === 'pickup' && pickupDate ? [['受け取り希望日', pickupDate]] : []),
+      ...(ship && ship.ready ? [
+        ['発送日', `${ship.dateStr}（${ship.weekend ? '土日' : '平日'}）`],
+        ['配送業者', ship.carrier],
+        ['梱包・口数', `${ship.size}サイズ × ${ship.units}口`],
+        ['送料', `¥${ship.exTotal.toLocaleString()}（税込 ¥${ship.inclTotal.toLocaleString()}）`],
+      ] : []),
       ['印刷費', `¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引込み）' : ''}`],
       ...(design ? [['デザイン費', `¥${designTotal.toLocaleString()}`]] : []),
       ...(c.memo ? [['備考', c.memo]] : []),
@@ -1430,7 +1686,7 @@
   }
 
   async function sendInquiry() {
-    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded } = calcValues();
+    const { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded, ship } = calcValues();
     const c = getCustomerInfo();
     const deliveryLabels = { standard: '標準（3〜5営業日）', express: '特急（1〜2営業日）', sameday: '当日対応' };
     const receiveLabels = { pickup: '直接お受け取り', delivery: '配送（送料実費）' };
@@ -1456,6 +1712,12 @@
       `デザイン制作：${design ? 'あり（' + designQty + '点 / ¥' + designTotal.toLocaleString() + '）' : 'なし（データ持込）'}`,
       ...(state.receive ? [`受け取り方法：${receiveLabels[state.receive] || ''}`] : []),
       ...(state.receive === 'pickup' && pickupDate ? [`受け取り希望日：${pickupDate}`] : []),
+      ...(ship && ship.ready ? [
+        `発送日：${ship.dateStr}（${ship.weekend ? '土日→ヤマト運輸' : '平日→ゆうパック'}）`,
+        `配送業者：${ship.carrier}`,
+        `梱包・口数：${ship.size}サイズ × ${ship.units}口`,
+        `送料：¥${ship.exTotal.toLocaleString()}（税込 ¥${ship.inclTotal.toLocaleString()}）`,
+      ] : []),
       '',
       '■ お見積り金額',
       `印刷費：¥${printTotal.toLocaleString()}${discountAmt > 0 ? '（割引 −¥' + discountAmt.toLocaleString() + '）' : ''}`,
@@ -1512,7 +1774,7 @@
   function buildQuoteSheet() {
     const v = calcValues();
     const c = getCustomerInfo();
-    const ex = n => Math.round(n / (1 + TAX_RATE)); // 税込→税抜（四捨五入）
+    const ex = n => n; // 単価はすべて税抜のためそのまま
     const yen = n => n.toLocaleString();
 
     const pickupDate = document.getElementById('pickup-date').value;
@@ -1529,11 +1791,15 @@
       rows.push({ d: lineDate, name: 'ラミネート加工（グロス）', unit: lamiEx, qty: v.qty, amt: lamiEx * v.qty });
     }
     if (v.discountAmt > 0) {
-      rows.push({ d: lineDate, name: `枚数割引適用（${v.disc.label}）`, unit: null, qty: null, amt: -Math.floor(v.discountAmt / (1 + TAX_RATE)) });
+      rows.push({ d: lineDate, name: `枚数割引適用（${v.disc.label}）`, unit: null, qty: null, amt: -v.discountAmt });
     }
     if (v.design) {
       const designEx = ex(DESIGN_FEE);
       rows.push({ d: '', name: '簡易デザイン制作費', unit: designEx, qty: v.designQty, amt: designEx * v.designQty });
+    }
+    if (v.ship && v.ship.ready) {
+      const cn = v.ship.weekend ? 'ヤマト運輸' : 'ゆうパック';
+      rows.push({ d: '', name: `配送料（${cn}・${v.ship.size}サイズ）`, unit: v.ship.unitEx, qty: v.ship.units, amt: v.ship.exTotal });
     }
 
     const subtotal = rows.reduce((s, r) => s + r.amt, 0);
@@ -1552,7 +1818,7 @@
 
     const notes = [
       '※ 本見積書は見積り計算機による自動発行です。正式な金額・納期は担当者からのご連絡にてご確認ください。',
-      ...(state.receive === 'delivery' ? ['※ 配送料は実費を別途申し受けます。'] : []),
+      ...(state.receive === 'delivery' ? ['※ 配送料は運送会社の公表運賃に基づく実費です（平日＝ゆうパック／土日＝ヤマト運輸）。'] : []),
     ].map(escHtml).join('<br>');
 
     document.getElementById('quote-sheet').innerHTML = `
