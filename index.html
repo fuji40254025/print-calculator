@@ -1294,8 +1294,10 @@
     const unitIncl = weekend ? YAMATO[p[2]][si] : YUPACK[p[1]][si];
     const unitEx = Math.round(unitIncl / (1 + TAX_RATE));
     const oversize = weekend && size === 170;
+    /* 税込は運送会社の公表運賃をそのまま積む。税抜へ割り戻してから再計算すると
+       1円ずれるため（例：山形県80サイズ 1,710 → 1,555 → 1,711）ここでは再計算しない。 */
     return { ready: true, weekend, carrier, prefName, size, units, unitIncl, unitEx,
-             exTotal: unitEx * units, inclTotal: Math.round(unitEx * units * (1 + TAX_RATE)), dateStr, oversize };
+             exTotal: unitEx * units, inclTotal: unitIncl * units, dateStr, oversize };
   }
 
   function renderShipResult(ship) {
@@ -1586,8 +1588,10 @@
     const printTotal = printBeforeDiscount - discountAmt;
     const ship = shippingInfo();
     const shipEx = (ship && ship.ready) ? ship.exTotal : 0;
+    const shipIncl = (ship && ship.ready) ? ship.inclTotal : 0;
     const taxExcluded = printTotal + designTotal + shipEx; // 税抜合計（送料込み）
-    const total = Math.round(taxExcluded * (1 + TAX_RATE)); // 税込合計
+    /* 送料は運送会社の公表額（税込）が正。印刷・デザインぶんだけ税込へ換算し、送料はそのまま足す。 */
+    const total = Math.round((printTotal + designTotal) * (1 + TAX_RATE)) + shipIncl; // 税込合計
     return { qty, lami, lamiPrice, design, designQty, unitPrice, designTotal, disc, discountAmt, printTotal, total, taxExcluded, ship, shipEx };
   }
 
