@@ -631,6 +631,10 @@
   .ship-result-amt { font-size: 1.15rem; font-weight: 800; color: #1e293b; margin-top: 3px; }
   .ship-result-note { font-size: 0.72rem; color: #64748b; line-height: 1.5; margin-top: 5px; }
   .ship-error { font-size: 0.8rem; color: #dc2626; margin-top: 6px; }
+  .ship-dropoff-field { margin-top: 4px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+  .ship-check { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+  .ship-check input { width: 18px; height: 18px; min-height: 18px; flex: 0 0 auto; accent-color: #1e40af; cursor: pointer; }
+  .ship-discount { color: #16a34a; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -962,6 +966,17 @@
         </div>
         <div id="ship-date-error" class="ship-error" style="display:none">⚠️ 発送日を入力してください</div>
 
+        <div class="ship-field ship-dropoff-field">
+          <label class="ship-check">
+            <input type="checkbox" id="ship-dropoff" checked onchange="calcTotal()">
+            <span>郵便局・営業所へ持ち込む（持込割引）</span>
+          </label>
+          <div class="ship-hint">
+            集荷を頼まずこちらで持ち込む場合に適用されます。<strong>ゆうパックは1口120円引き</strong>、<strong>ヤマトは1口100円引き</strong>。
+            コンビニなどの取扱所への持込でも適用されます。
+          </div>
+        </div>
+
         <div class="ship-result" id="ship-result" style="display:none">
           <div class="ship-result-carrier" id="ship-result-carrier"></div>
           <div class="ship-result-amt" id="ship-result-amt"></div>
@@ -1291,12 +1306,19 @@
     const w = new Date(dateStr + 'T00:00:00').getDay();
     const weekend = (w === 0 || w === 6);
     const carrier = weekend ? 'ヤマト運輸（宅急便）' : 'ゆうパック（日本郵便）';
-    const unitIncl = weekend ? YAMATO[p[2]][si] : YUPACK[p[1]][si];
+    const baseIncl = weekend ? YAMATO[p[2]][si] : YUPACK[p[1]][si];
+    /* 持込割引：ゆうパックは1個120円、ヤマト宅急便は1個100円。いずれも税込の基本運賃から引く。
+       出典 https://www.post.japanpost.jp/service/send/domestic/delivery/yu-pack/
+            https://www.kuronekoyamato.co.jp/ytc/customer/send/search/payment/discount/ */
+    const dropoff = !!(document.getElementById('ship-dropoff') || {}).checked;
+    const discPer = dropoff ? (weekend ? 100 : 120) : 0;
+    const unitIncl = Math.max(0, baseIncl - discPer);
     const unitEx = Math.round(unitIncl / (1 + TAX_RATE));
     const oversize = weekend && size === 170;
     /* 税込は運送会社の公表運賃をそのまま積む。税抜へ割り戻してから再計算すると
        1円ずれるため（例：山形県80サイズ 1,710 → 1,555 → 1,711）ここでは再計算しない。 */
-    return { ready: true, weekend, carrier, prefName, size, units, unitIncl, unitEx,
+    return { ready: true, weekend, carrier, prefName, size, units, baseIncl, dropoff, discPer,
+             discTotal: discPer * units, unitIncl, unitEx,
              exTotal: unitEx * units, inclTotal: unitIncl * units, dateStr, oversize };
   }
 
@@ -1310,9 +1332,13 @@
       (ship.weekend ? '🟡 土日発送のため ' : '📮 平日発送のため ') + ship.carrier;
     document.getElementById('ship-result-amt').innerHTML =
       `送料 ¥${ship.exTotal.toLocaleString()} <small style="font-size:0.72rem;font-weight:400;color:#64748b">（税込 ¥${ship.inclTotal.toLocaleString()}）</small>`;
-    document.getElementById('ship-result-note').textContent =
+    document.getElementById('ship-result-note').innerHTML =
       `${ship.prefName}あて ／ ${ship.size}サイズ × ${ship.units}口（1口あたり税込¥${ship.unitIncl.toLocaleString()}）`
-      + (ship.oversize ? ' ※ヤマトは170サイズ区分が無いため180サイズ運賃です。平日発送のゆうパックなら大幅に安くなります。' : '');
+      + (ship.discPer
+          ? `<br><span class="ship-discount">持込割引 −¥${ship.discPer}／口 × ${ship.units}口 ＝ −¥${ship.discTotal.toLocaleString()}</span>`
+            + `（持込なしなら税込¥${(ship.baseIncl * ship.units).toLocaleString()}）`
+          : `<br>※ 持ち込まない場合の運賃です。持ち込むと1口${ship.weekend ? 100 : 120}円引きになります。`)
+      + (ship.oversize ? '<br>※ヤマトは170サイズ区分が無いため180サイズ運賃です。平日発送のゆうパックなら大幅に安くなります。' : '');
   }
 
   const PRICES = {
@@ -1803,7 +1829,8 @@
     }
     if (v.ship && v.ship.ready) {
       const cn = v.ship.weekend ? 'ヤマト運輸' : 'ゆうパック';
-      rows.push({ d: '', name: `配送料（${cn}・${v.ship.size}サイズ）`, unit: v.ship.unitEx, qty: v.ship.units, amt: v.ship.exTotal });
+      const dropTxt = v.ship.dropoff ? '・持込割引適用' : '';
+      rows.push({ d: '', name: `配送料（${cn}・${v.ship.size}サイズ${dropTxt}）`, unit: v.ship.unitEx, qty: v.ship.units, amt: v.ship.exTotal });
     }
 
     const subtotal = rows.reduce((s, r) => s + r.amt, 0);
@@ -1822,7 +1849,7 @@
 
     const notes = [
       '※ 本見積書は見積り計算機による自動発行です。正式な金額・納期は担当者からのご連絡にてご確認ください。',
-      ...(state.receive === 'delivery' ? ['※ 配送料は運送会社の公表運賃に基づく実費です（平日＝ゆうパック／土日＝ヤマト運輸）。'] : []),
+      ...(state.receive === 'delivery' ? ['※ 配送料は運送会社の公表運賃に基づく実費です（平日＝ゆうパック／土日＝ヤマト運輸）。持込割引を適用した金額です。'] : []),
     ].map(escHtml).join('<br>');
 
     document.getElementById('quote-sheet').innerHTML = `
